@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data.OleDb;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using System.Linq;
 namespace DBF_TEST
 {
     class Program
@@ -54,8 +55,10 @@ namespace DBF_TEST
                 var tmp = el as Analogs;
                 Console.WriteLine($"{tmp.Code} - {tmp.ACode}");
             }
-
-
+            MyContext ctx = new MyContext();
+            var _tmp = list.Result.ToList().First() as Element;
+            ctx.Elements.Add(_tmp);
+            ctx.SaveChanges();
             Console.ReadKey();
         }
     }

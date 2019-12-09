@@ -13,6 +13,7 @@ namespace DBF_TEST
         [Key]
         public override int Code { get; set; }
         [Required]
+        [ForeignKey("NavProp")]
         public int ACode { get; set; }
 
     }
