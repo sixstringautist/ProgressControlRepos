@@ -8,12 +8,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DBF_TEST
 {
-    class Analogs : ManyToManySelfRelation<Element, int>
+    public class Analogs : ManyToManySelfRelation<Element, int>
     {
-        [Key]
+        [Key,Column("code",Order =0)]
         public override int Code { get; set; }
         [Required]
-        [ForeignKey("NavProp")]
+        [Key,ForeignKey("NavProp"),Column("acode",Order = 1)]
         public int ACode { get; set; }
 
     }

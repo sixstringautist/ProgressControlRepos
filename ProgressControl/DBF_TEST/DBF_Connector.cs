@@ -7,7 +7,7 @@ using System.Linq;
 using System.Diagnostics;
 namespace DBF_TEST
 {
-    enum TableName
+    public enum TableName
     {
         analogs,
         elements,
@@ -15,7 +15,7 @@ namespace DBF_TEST
         spc_el
     };
 
-    class DBF_Connector : IDisposable
+    public class DBF_Connector : IDisposable
     {
         OleDbConnection mainConnection;
 
@@ -76,6 +76,58 @@ namespace DBF_TEST
             return await t;
         }
 
+        public void BackgroundTask()
+        {
+            var spc =  GetEntitiesAsync(TableName.spc, new SpecificationCreator());
+            var elements = GetEntitiesAsync(TableName.elements, new ElementCreator());
+            var analogs = GetEntitiesAsync(TableName.analogs, new AnalogsCreator());
+            var quantities = GetEntitiesAsync(TableName.spc_el, new ElementQuantityCreator());
+            Task.WaitAll(spc, elements, analogs, quantities);
+            var spc_ie = spc.Result.Cast<Specification>();
+            var elements_ie = elements.Result.Cast<Element>();
+            var analogs_ie = analogs.Result.Cast<Analogs>();
+            var quantities_ie = quantities.Result.Cast<ElementQuantity>();
+            NavigateEntities(spc_ie, elements_ie, analogs_ie, quantities_ie);
+            ImportData(spc_ie, elements_ie, new MyContext());
+        }
+
+
+        public async void ImportData(IEnumerable<Specification> spc , IEnumerable<Element> elements, MyContext cnt)
+        {
+            foreach (var el in elements)
+            {
+                cnt.Elements.Add(el);
+            }
+            int x = await cnt.SaveChangesAsync();
+        }
+
+        public void NavigateEntities(IEnumerable<Specification> spc , IEnumerable<Element> elements, IEnumerable<Analogs> analogs, IEnumerable<ElementQuantity> quantities)
+        {
+            foreach(var el in spc)
+            {
+                el.Collection = quantities.Where(x => x.CodeTwo == el.Code).ToList();
+            }
+            foreach (var el in elements)
+            {
+                el.Collection = quantities.Where(x => x.Code == el.Code).ToList();
+                el.CollectionTwo = analogs.Where(x => x.Code == el.Code).ToList();
+            }
+            foreach (var el in analogs)
+            {
+                el.NavProp = elements.FirstOrDefault(x => x.Code == el.ACode);
+                if(el.NavProp == null)
+                {
+
+                }
+            }
+            foreach (var el in quantities)
+            {
+                el.NavProp = elements.FirstOrDefault(x => x.Code == el.Code);
+                el.NavPropTwo = spc.FirstOrDefault(x => x.Code == el.CodeTwo);
+            }
+        }
+
+
         public IEnumerable<DBObject<int>> GetEntities(TableName tname, DatabaseObjectCreator<int> creator)
         {
             var command = CreateCommand("select", tname);
@@ -93,7 +145,11 @@ namespace DBF_TEST
                 {
                     parameters[el] = reader[el];
                 }
-                list.Add(creator.CreateDatabaseObject(new DBObject<int>() { Values = parameters }));
+                try
+                {
+                    list.Add(creator.CreateDatabaseObject(new DBObject<int>() { Values = parameters }));
+                }
+                catch (InvalidCastException e) { Debug.WriteLine($"{e.Message} {e.Source}");}
             }
             return list;
         }

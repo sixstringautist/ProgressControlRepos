@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DBF_TEST
 {
-    class Specification : RefCollectionEntity<ElementQuantity, int>
+    public class Specification : RefCollectionEntity<ElementQuantity, int>
     {
         private string _name;
 

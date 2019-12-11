@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressControl", "ProgressControl\ProgressControl.csproj", "{83A14A89-F639-408E-B579-745EAC3FDF2F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{392091DD-45D7-4851-86F9-47781655E28F} = {392091DD-45D7-4851-86F9-47781655E28F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBF_TEST", "DBF_TEST\DBF_TEST.csproj", "{392091DD-45D7-4851-86F9-47781655E28F}"
 EndProject

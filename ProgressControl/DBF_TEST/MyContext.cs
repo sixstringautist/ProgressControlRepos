@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
 namespace DBF_TEST
 {
-    class MyContext : DbContext
+    public class MyContext : DbContext
     {
         public DbSet<Element> Elements { get; set; }
 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DBF_TEST
 {
-    class Element : TwoRefCollectionEntity<ElementQuantity, Analogs, int>
+    public class Element : TwoRefCollectionEntity<ElementQuantity, Analogs, int>
     {
         private string _name;
 

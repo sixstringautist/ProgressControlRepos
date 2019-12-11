@@ -5,14 +5,14 @@ namespace DBF_TEST
 {
     //TODO: Подумать над обработкой исключений
     #region AbstcractCreators
-    abstract class DatabaseObjectCreator<TKey>
+    public abstract class DatabaseObjectCreator<TKey>
     {
         public delegate void ShowException(Exception e);
         public abstract DBObject<TKey> CreateDatabaseObject(DBObject<TKey> obj);
     }
     #region EntityCreators
 
-    abstract class EntityCreator<TResult,TKey> : DatabaseObjectCreator<TKey> where TResult: class
+    public abstract class EntityCreator<TResult,TKey> : DatabaseObjectCreator<TKey> where TResult: class
     {
         public override DBObject<TKey> CreateDatabaseObject(DBObject<TKey> obj)
         {
@@ -20,7 +20,7 @@ namespace DBF_TEST
         }
         protected abstract DBObject<TKey> CreateEntity<T>(DBObject<TKey> obj);
     }
-    abstract class OneReferenceEntityCreator<TResult, TKey> : EntityCreator<TResult, TKey> where TResult:class
+    public abstract class OneReferenceEntityCreator<TResult, TKey> : EntityCreator<TResult, TKey> where TResult:class
     {
         protected override DBObject<TKey> CreateEntity<T>(DBObject<TKey> obj)
         {
@@ -28,7 +28,7 @@ namespace DBF_TEST
         }
         protected abstract DBObject<TKey> CreateOneReferenceEntity(DBObject<TKey> obj);
     }
-    abstract class CreatRefCollectionEntity<TResult, TKey> : EntityCreator<TResult, TKey> where TResult : class
+    public abstract class CreatRefCollectionEntity<TResult, TKey> : EntityCreator<TResult, TKey> where TResult : class
     {
         protected override DBObject<TKey> CreateEntity<T>(DBObject<TKey> obj)
         {
@@ -36,7 +36,7 @@ namespace DBF_TEST
         }
         protected abstract DBObject<TKey> CreateReferenceCollectionEntity(DBObject<TKey> obj);
     }
-    abstract class TwoReferenceEntityCreator<TResult, TKey> : EntityCreator<TResult, TKey> where TResult : class
+    public abstract class TwoReferenceEntityCreator<TResult, TKey> : EntityCreator<TResult, TKey> where TResult : class
     {
         protected override DBObject<TKey> CreateEntity<T>(DBObject<TKey> obj)
         {
@@ -47,7 +47,7 @@ namespace DBF_TEST
     }
     #endregion
     #region RelationCreators
-    abstract class CreateRelation<TRel, TKey> : DatabaseObjectCreator<TKey> where TRel : class
+    public abstract class CreateRelation<TRel, TKey> : DatabaseObjectCreator<TKey> where TRel : class
     {
         public override DBObject<TKey> CreateDatabaseObject(DBObject<TKey> obj)
         {
@@ -56,7 +56,7 @@ namespace DBF_TEST
 
         protected abstract DBObject<TKey> CreateRel<TResult>(DBObject<TKey> obj);
     }
-    abstract class CreateManyToManySelf<NPropOne, TKey> : CreateRelation<ManyToManySelfRelation<NPropOne, TKey>, TKey> where NPropOne : class
+    public abstract class CreateManyToManySelf<NPropOne, TKey> : CreateRelation<ManyToManySelfRelation<NPropOne, TKey>, TKey> where NPropOne : class
     {
         protected override DBObject<TKey> CreateRel<TResult>(DBObject<TKey> obj)
         {
@@ -64,7 +64,7 @@ namespace DBF_TEST
         }
         protected abstract DBObject<TKey> CreateManyToManySelfRel(DBObject<TKey> obj);
     }
-    abstract class CreateManyToMany<NPropOne, NPropTwo, TKey, TKeyTwo> : CreateRelation<ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo>, TKey>
+    public abstract class CreateManyToMany<NPropOne, NPropTwo, TKey, TKeyTwo> : CreateRelation<ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo>, TKey>
         where NPropOne : class where NPropTwo : class
     {
         protected override DBObject<TKey> CreateRel<TResult>(DBObject<TKey> obj)
@@ -78,7 +78,7 @@ namespace DBF_TEST
     #endregion
     #region ConcreteCreators
     #region EntityCreators
-    class SpecificationCreator : OneReferenceEntityCreator<Specification, int>
+   public class SpecificationCreator : OneReferenceEntityCreator<Specification, int>
     {
         protected override DBObject<int> CreateOneReferenceEntity(DBObject<int> obj)
         {
@@ -92,7 +92,7 @@ namespace DBF_TEST
             };
         }
     }
-    class ElementCreator : TwoReferenceEntityCreator<Element, int>
+   public class ElementCreator : TwoReferenceEntityCreator<Element, int>
     {
         protected override DBObject<int> CreateTwoReferenceEntity(DBObject<int> obj)
         {
@@ -110,7 +110,7 @@ namespace DBF_TEST
     }
     #endregion
     #region RelationCreators
-    class AnalogsCreator : CreateManyToManySelf<Element, int>
+    public class AnalogsCreator : CreateManyToManySelf<Element, int>
     {
         protected override DBObject<int> CreateManyToManySelfRel(DBObject<int> obj)
         {
@@ -119,31 +119,32 @@ namespace DBF_TEST
             return new Analogs()
             {
                 Code = int.Parse(obj.Values["code"]),
-                ACode = int.Parse(obj.Values["acode"])
+                ACode = int.Parse(obj.Values["acode"]),
+                NavProp = null
             };
         }
-
-        class ElementQuantityCreator : CreateManyToMany<Element, Specification, int, int>
-        {
-
-            public override DBObject<int> CreateManyToManyRel<TResult>(DBObject<int> obj)
-            {
-                if (!(int.TryParse(obj.Values["code"], out int val)) ||
-                    !(int.TryParse(obj.Values["spcode"], out int val1)) ||
-                    !(int.TryParse(obj.Values["quantity"], out int val2)))
-                    throw new InvalidCastException("Invalid parameter type") { Source = this.GetType().Name};
-
-                return new ElementQuantity()
-                {
-                    Code = (int)obj.Values["code"],
-                    CodeTwo = (int)obj.Values["spcode"],
-                    Quantity = (int)obj.Values["quantity"]
-                };
-            }
-        }
-        
-
     }
+    public class ElementQuantityCreator : CreateManyToMany<Element, Specification, int, int>
+    {
+
+        public override DBObject<int> CreateManyToManyRel<TResult>(DBObject<int> obj)
+        {
+            if (!(int.TryParse(obj.Values["code"], out int val)) ||
+                !(int.TryParse(obj.Values["spcode"], out int val1)) ||
+                !(obj.Values["quantity"] is Decimal))
+                throw new InvalidCastException("Invalid parameter type") { Source = this.GetType().Name };
+
+            return new ElementQuantity()
+            {
+                Code =int.Parse(obj.Values["code"]),
+                CodeTwo = int.Parse(obj.Values["spcode"]),
+                Quantity = Decimal.ToInt32(obj.Values["quantity"]),
+                NavProp = null,
+                NavPropTwo = null
+            };
+        }
+    }
+
     #endregion
     #endregion
 }
