@@ -28,18 +28,19 @@ namespace DBF_TEST
     {
         public virtual ICollection<TRefTwo> CollectionTwo { get; set; }
     }
+    interface ISelfReferenceCollection<TRef>
+    {
+        ICollection<TRef> Parents { get; set; }
+        ICollection<TRef> Childrens { get; set; }
+    }
     #endregion
     #region ManyToManyRelationsAbstract
-    public abstract class ManyToManySelfRelation<NPropOne, Tkey> : DBObject<Tkey>
-        where NPropOne : class
-    {
-        public virtual NPropOne NavProp { get; set; }
-    }
-    public abstract class ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo> : ManyToManySelfRelation<NPropOne, TKey>
+    public abstract class ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo> : DBObject<TKey>
         where NPropOne : class
         where NPropTwo : class
     {
         public abstract TKeyTwo CodeTwo { get; set; }
+        public virtual NPropOne NavProp { get; set; }
         public virtual NPropTwo NavPropTwo { get; set; }
     }
     #endregion

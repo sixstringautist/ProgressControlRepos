@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Linq;
 using System.Diagnostics;
+using System.Data.Common;
+using System.Data.Entity;
 namespace DBF_TEST
 {
     public enum TableName
@@ -17,9 +19,12 @@ namespace DBF_TEST
 
     public class DBF_Connector : IDisposable
     {
-        OleDbConnection mainConnection;
+        DbConnection mainConnection;
+        MyContext cnt;
+        public string DefaultConnection { get; set; }
+        public string ConnectionString { get => mainConnection.ConnectionString;}
 
-        private OleDbCommand CreateCommand(string command, TableName tname, params string[] colname)
+        private DbCommand CreateCommand(string command, TableName tname, params string[] colname)
         {
             string CreateColumns()
             {
@@ -78,52 +83,66 @@ namespace DBF_TEST
 
         public void BackgroundTask()
         {
-            var spc =  GetEntitiesAsync(TableName.spc, new SpecificationCreator());
+            var spc = GetEntitiesAsync(TableName.spc, new SpecificationCreator());
             var elements = GetEntitiesAsync(TableName.elements, new ElementCreator());
             var analogs = GetEntitiesAsync(TableName.analogs, new AnalogsCreator());
             var quantities = GetEntitiesAsync(TableName.spc_el, new ElementQuantityCreator());
             Task.WaitAll(spc, elements, analogs, quantities);
             var spc_ie = spc.Result.Cast<Specification>();
             var elements_ie = elements.Result.Cast<Element>();
-            var analogs_ie = analogs.Result.Cast<Analogs>();
+            var analogs_ie = analogs.Result.Cast<Analog>();
+            var el = analogs_ie.Where(x => x.Code == 8);
             var quantities_ie = quantities.Result.Cast<ElementQuantity>();
             NavigateEntities(spc_ie, elements_ie, analogs_ie, quantities_ie);
-            ImportData(spc_ie, elements_ie, new MyContext());
+            ImportData(spc_ie, elements_ie,analogs_ie, quantities_ie);
         }
 
 
-        public async void ImportData(IEnumerable<Specification> spc , IEnumerable<Element> elements, MyContext cnt)
+        public void ImportData(IEnumerable<Specification> spc, IEnumerable<Element> elements, IEnumerable<Analog> analogs, IEnumerable<ElementQuantity> quantities)
         {
+            cnt.Database.Log = s => Debug.WriteLine(s);
             foreach (var el in elements)
             {
-                cnt.Elements.Add(el);
+                var existing = cnt.Elements.Find(el.Code);
+                if (existing == null)
+                {
+                    cnt.Elements.Add(el);
+                }
+                else
+                {
+                    cnt.Entry(existing).CurrentValues.SetValues(el);
+                }
             }
-            int x = await cnt.SaveChangesAsync();
+            foreach (var el in spc)
+            {
+                var existing = cnt.Specifications.Find(el.Code);
+                if (existing == null)
+                {
+                    cnt.Specifications.Add(el);
+                }
+                else
+                {
+                    cnt.Entry(existing).CurrentValues.SetValues(el);
+                }
+            }
+            spc = null;
+            elements = null;
+            cnt.SaveChanges();
         }
 
-        public void NavigateEntities(IEnumerable<Specification> spc , IEnumerable<Element> elements, IEnumerable<Analogs> analogs, IEnumerable<ElementQuantity> quantities)
+        public void NavigateEntities(IEnumerable<Specification> spc, IEnumerable<Element> elements, IEnumerable<Analog> analogs, IEnumerable<ElementQuantity> quantities)
         {
-            foreach(var el in spc)
-            {
-                el.Collection = quantities.Where(x => x.CodeTwo == el.Code).ToList();
-            }
+
+            analogs = analogs.Except(analogs.Where(x => x.Code == x.CodeTwo));
             foreach (var el in elements)
             {
                 el.Collection = quantities.Where(x => x.Code == el.Code).ToList();
-                el.CollectionTwo = analogs.Where(x => x.Code == el.Code).ToList();
+                el.Parents = analogs.Where(a => a.CodeTwo == el.Code).ToList();
+                el.Childrens = analogs.Where(a => a.Code == el.Code).ToList();
             }
-            foreach (var el in analogs)
+            foreach (var el in spc)
             {
-                el.NavProp = elements.FirstOrDefault(x => x.Code == el.ACode);
-                if(el.NavProp == null)
-                {
-
-                }
-            }
-            foreach (var el in quantities)
-            {
-                el.NavProp = elements.FirstOrDefault(x => x.Code == el.Code);
-                el.NavPropTwo = spc.FirstOrDefault(x => x.Code == el.CodeTwo);
+                el.Collection = quantities.Where(x => x.CodeTwo == el.Code).ToList();
             }
         }
 
@@ -149,7 +168,7 @@ namespace DBF_TEST
                 {
                     list.Add(creator.CreateDatabaseObject(new DBObject<int>() { Values = parameters }));
                 }
-                catch (InvalidCastException e) { Debug.WriteLine($"{e.Message} {e.Source}");}
+                catch (InvalidCastException e) { Debug.WriteLine($"{e.Message} {e.Source}"); }
             }
             return list;
         }
@@ -158,16 +177,27 @@ namespace DBF_TEST
         {
             mainConnection = new OleDbConnection(connectionString);
             mainConnection.Open();
+            cnt = new MyContext();
         }
 
-
-        ~DBF_Connector()
+        public DBF_Connector() : this(@"Provider=VFPOLEDB.1;Data Source = H:\ДИПЛОМНАЯ РАБОТА\SMT;User ID = admin")
         {
-            Dispose();
+        }
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (mainConnection != null)
+                { mainConnection.Close(); mainConnection = null; }
+                if (cnt != null)
+                { cnt.Dispose(); cnt = null; }
+            }
         }
         public void Dispose()
         {
-            mainConnection.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
     }
 }

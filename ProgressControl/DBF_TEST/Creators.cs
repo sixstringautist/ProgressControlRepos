@@ -56,14 +56,6 @@ namespace DBF_TEST
 
         protected abstract DBObject<TKey> CreateRel<TResult>(DBObject<TKey> obj);
     }
-    public abstract class CreateManyToManySelf<NPropOne, TKey> : CreateRelation<ManyToManySelfRelation<NPropOne, TKey>, TKey> where NPropOne : class
-    {
-        protected override DBObject<TKey> CreateRel<TResult>(DBObject<TKey> obj)
-        {
-            return CreateManyToManySelfRel(obj);
-        }
-        protected abstract DBObject<TKey> CreateManyToManySelfRel(DBObject<TKey> obj);
-    }
     public abstract class CreateManyToMany<NPropOne, NPropTwo, TKey, TKeyTwo> : CreateRelation<ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo>, TKey>
         where NPropOne : class where NPropTwo : class
     {
@@ -71,7 +63,7 @@ namespace DBF_TEST
         {
             return CreateManyToManyRel<ManyToManyRelation<NPropOne, NPropTwo, TKey, TKeyTwo>>(obj);
         }
-        public abstract DBObject<TKey> CreateManyToManyRel<TResult>(DBObject<TKey> obj);
+        protected abstract DBObject<TKey> CreateManyToManyRel<TResult>(DBObject<TKey> obj);
     }
     #endregion
 
@@ -98,36 +90,40 @@ namespace DBF_TEST
         {
             if (!(int.TryParse(obj.Values["code"], out int val)) || !(obj.Values["name"].GetType() == typeof(string)) || !(obj.Values["quantity"] is Decimal))
                 throw new InvalidCastException("Invalid parameter type") { Source = this.GetType().Name };
-           
+
             return new Element()
             {
                 Code = int.Parse(obj.Values["code"]),
                 Name = obj.Values["name"],
-                Quantity = Decimal.ToInt32(obj.Values["quantity"])
+                Quantity = Decimal.ToInt32(obj.Values["quantity"]),
+                Un = obj.Values["un"].Trim(' ')
             };
         }
 
     }
     #endregion
     #region RelationCreators
-    public class AnalogsCreator : CreateManyToManySelf<Element, int>
+    public class AnalogsCreator : CreateManyToMany<Element, Element,int,int>
     {
-        protected override DBObject<int> CreateManyToManySelfRel(DBObject<int> obj)
+        protected override DBObject<int> CreateManyToManyRel<TResult>(DBObject<int> obj)
         {
             if (!(int.TryParse(obj.Values["code"], out int val)) || !(int.TryParse(obj.Values["acode"], out int val1)))
                 throw new InvalidCastException("Invalid parameter type") { Source = this.GetType().Name };
-            return new Analogs()
+
+            return new Analog()
             {
                 Code = int.Parse(obj.Values["code"]),
-                ACode = int.Parse(obj.Values["acode"]),
-                NavProp = null
+                CodeTwo = int.Parse(obj.Values["acode"]),
+                NavProp = null,
+                NavPropTwo = null,
+                AnalogPriority = Decimal.ToInt32(obj.Values["prior"])
             };
         }
     }
     public class ElementQuantityCreator : CreateManyToMany<Element, Specification, int, int>
     {
 
-        public override DBObject<int> CreateManyToManyRel<TResult>(DBObject<int> obj)
+        protected override DBObject<int> CreateManyToManyRel<TResult>(DBObject<int> obj)
         {
             if (!(int.TryParse(obj.Values["code"], out int val)) ||
                 !(int.TryParse(obj.Values["spcode"], out int val1)) ||
