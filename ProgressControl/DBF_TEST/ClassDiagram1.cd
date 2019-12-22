@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DBF_TEST.Analog" Collapsed="true">
+    <Position X="17" Y="11.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAABAAgAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Analog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.AnalogsCreator" Collapsed="true">
+    <Position X="36" Y="13.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.CreateManyToMany&lt;NPropOne, NPropTwo, TKey, TKeyTwo&gt;" Collapsed="true">
+    <Position X="33.5" Y="11.75" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.CreateRelation&lt;TRel, TKey&gt;" Collapsed="true">
+    <Position X="33.75" Y="10.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAACAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.CreatRefCollectionEntity&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="31.25" Y="12.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.DatabaseObjectCreator&lt;TKey&gt;">
+    <Position X="30.5" Y="7.75" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.DBF_Connector" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="23" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAACAAAQCAAAAMAAEAAAAAAAAAQCAAAAAIAAA=</HashCode>
+      <FileName>DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DBF_TEST.DBObject&lt;TKey&gt;" Collapsed="true">
+    <Position X="15.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.Element" Collapsed="true">
+    <Position X="11.25" Y="11.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAkAAQAAAAAAAAAAAAAgAAIAAI=</HashCode>
+      <FileName>Element.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="DBF_TEST.ElementComparer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="24.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DBF_TEST.ElementCreator" Collapsed="true">
+    <Position X="29.5" Y="14.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.ElementQuantity" Collapsed="true">
+    <Position X="20.25" Y="11.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAgAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>ElementQuantity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.ElementQuantityCreator" Collapsed="true">
+    <Position X="33.25" Y="15" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.EntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="28.25" Y="10.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.ManyToManyRelation&lt;NPropOne, NPropTwo, TKey, TKeyTwo&gt;" Collapsed="true">
+    <Position X="15.25" Y="10.25" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACBAAAAAAAAAAAAAAAAAAAAABAAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.MyContext" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="23" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAQgAAAEAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MyContext.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DBF_TEST.OneReferenceEntity&lt;TRef, TKey&gt;" Collapsed="true">
+    <Position X="19.75" Y="10.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.OneReferenceEntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="25" Y="13.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.RefCollectionEntity&lt;TRef, TKey&gt;" Collapsed="true">
+    <Position X="12.5" Y="10.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.Smt_box" Collapsed="true">
+    <Position X="11.75" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Smt_box.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.Specification" Collapsed="true">
+    <Position X="14" Y="11.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAABAACAAgAAQAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Specification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.SpecificationComparer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22" Y="14.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DBF_TEST.SpecificationCreator" Collapsed="true">
+    <Position X="26" Y="15" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.TwoRefCollectionEntity&lt;TRef, TRefTwo, TKey&gt;" Collapsed="true">
+    <Position X="8" Y="11.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DBF_TEST.TwoReferenceEntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="28" Y="12.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="DBF_TEST.ISelfReferenceCollection&lt;TRef&gt;" Collapsed="true">
+    <Position X="23" Y="9.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="DBF_TEST.TableName" Collapsed="true">
+    <Position X="23" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAABAAAAAAAAAAAAAAAAAAAAACgAAAAAA=</HashCode>
+      <FileName>DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -8,9 +8,11 @@ namespace DBF_TEST
 
         public DbSet<Specification> Specifications { get; set; }
 
+        public DbSet<Smt_box> SmtBoxes { get; set; }
+
         public MyContext(): base("EFConnection")
         {
-            Database.SetInitializer(new DropCreateDatabaseAlways<MyContext>());
+            Database.SetInitializer(new CreateDatabaseIfNotExists<MyContext>());
         }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -6,9 +6,8 @@ using System;
 using System.Collections.Generic;
 using Hangfire.SqlServer;
 using System.Threading.Tasks;
-using DBF_TEST;
 
-[assembly: OwinStartupAttribute(typeof(ProgressControl.Startup))]
+[assembly: OwinStartup(typeof(ProgressControl.Startup))]
 namespace ProgressControl
 {
     public partial class Startup
@@ -35,10 +34,8 @@ namespace ProgressControl
 
         public void Configuration(IAppBuilder app)
         {
-            DBF_Connector conn = new DBF_Connector();
             app.UseHangfireAspNet(GetHangfireServers);
             app.UseHangfireDashboard();
-            RecurringJob.AddOrUpdate(() => conn.BackgroundTask(), Cron.Daily);
             ConfigureAuth(app);
         }
     }

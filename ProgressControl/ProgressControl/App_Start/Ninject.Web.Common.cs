@@ -1,5 +1,5 @@
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(ProgressControl.App_Start.NinjectWebCommon), "Start")]
-[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(ProgressControl.App_Start.NinjectWebCommon), "Stop")]
+[assembly: WebActivatorEx.ApplicationShutdownMethod(typeof(ProgressControl.App_Start.NinjectWebCommon), "Stop")]
 
 namespace ProgressControl.App_Start
 {
@@ -9,10 +9,20 @@ namespace ProgressControl.App_Start
     using Ninject;
     using Ninject.Web.Common;
     using Ninject.Web.Common.WebHost;
+    using ProgressControl.DAL.Repositories;
+    using ProgressControl.DAL.Interfaces;
+    using ProgressControl.DAL.Entities;
+    using ProgressControl.DAL.EF;
+    using ProgressControl.DAL.Identity;
+    using Microsoft.AspNet.Identity.Owin;
+    using Microsoft.AspNet.Identity;
+    using Microsoft.AspNet.Identity.EntityFramework;
+    using Microsoft.Owin.Security;
+    using System.Configuration;
 
     public static class NinjectWebCommon 
     {
-        private static readonly Bootstrapper bootstrapper = new Bootstrapper();
+        public static readonly Bootstrapper bootstrapper = new Bootstrapper();
 
         /// <summary>
         /// Starts the application
@@ -59,6 +69,33 @@ namespace ProgressControl.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+
+            kernel.Bind<ApplicationContext>().ToSelf()
+                .InRequestScope()
+                .WithConstructorArgument(ConfigurationManager.ConnectionStrings["EFConnection"].ConnectionString);
+
+            kernel.Bind<IUserStore<ApplicationUser>>()
+                .To<UserStore<ApplicationUser>>().InRequestScope()
+                .WithConstructorArgument(kernel.Get<ApplicationContext>());
+
+            kernel.Bind<IAuthenticationManager>()
+                .ToMethod(c => HttpContext.Current.GetOwinContext().Authentication)
+                .InRequestScope();
+
+            kernel.Bind<ApplicationUserManager>().ToSelf()
+                .InRequestScope().WithConstructorArgument(kernel.Get<ApplicationContext>());
+
+            kernel.Bind<ApplicationRoleManager>().ToSelf()
+                .InRequestScope()
+                .WithConstructorArgument(kernel.Get<ApplicationContext>());
+
+
+            kernel.Bind<ApplicationSignInManager>().ToSelf().InRequestScope()
+                .WithConstructorArgument(kernel.Get<ApplicationUserManager>())
+                .WithConstructorArgument(kernel.Get<IAuthenticationManager>());
+
+            kernel.Bind<IUnitOfWork>().To<UnitOfWork>()
+                .InRequestScope().WithConstructorArgument(kernel.Get<ApplicationContext>());
         }        
     }
 }

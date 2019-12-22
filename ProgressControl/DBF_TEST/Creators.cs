@@ -3,11 +3,9 @@ using System.Diagnostics;
 
 namespace DBF_TEST
 {
-    //TODO: Подумать над обработкой исключений
     #region AbstcractCreators
     public abstract class DatabaseObjectCreator<TKey>
     {
-        public delegate void ShowException(Exception e);
         public abstract DBObject<TKey> CreateDatabaseObject(DBObject<TKey> obj);
     }
     #region EntityCreators

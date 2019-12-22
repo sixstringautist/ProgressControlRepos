@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Diagnostics;
 using System.Data.Common;
-using System.Data.Entity;
+using System.IO;
 namespace DBF_TEST
 {
     public enum TableName
@@ -16,9 +16,39 @@ namespace DBF_TEST
         spc,
         spc_el
     };
+    class ElementComparer : IEqualityComparer<Element>
+    {
+        public bool Equals(Element x, Element y)
+        {
+            if (x.Code == y.Code)
+                return true;
+            else return false;
+        }
+
+        public int GetHashCode(Element obj)
+        {
+            return obj.Code;
+        }
+    }
+    class SpecificationComparer : IEqualityComparer<Specification>
+    {
+        public bool Equals(Specification x, Specification y)
+        {
+            if (x.Code == y.Code)
+                return true;
+            else return false;
+        }
+
+        public int GetHashCode(Specification obj)
+        {
+            return obj.Code;
+        }
+    }
+
 
     public class DBF_Connector : IDisposable
     {
+        
         DbConnection mainConnection;
         MyContext cnt;
         public string DefaultConnection { get; set; }
@@ -88,45 +118,38 @@ namespace DBF_TEST
             var analogs = GetEntitiesAsync(TableName.analogs, new AnalogsCreator());
             var quantities = GetEntitiesAsync(TableName.spc_el, new ElementQuantityCreator());
             Task.WaitAll(spc, elements, analogs, quantities);
-            var spc_ie = spc.Result.Cast<Specification>();
-            var elements_ie = elements.Result.Cast<Element>();
-            var analogs_ie = analogs.Result.Cast<Analog>();
-            var el = analogs_ie.Where(x => x.Code == 8);
-            var quantities_ie = quantities.Result.Cast<ElementQuantity>();
+
+            var spc_ie = spc.Result.Cast<Specification>().ToList();
+            var elements_ie = elements.Result.Cast<Element>().ToList();
+            var analogs_ie = analogs.Result.Cast<Analog>().ToList();
+            var quantities_ie = quantities.Result.Cast<ElementQuantity>().ToList(); ;
             NavigateEntities(spc_ie, elements_ie, analogs_ie, quantities_ie);
-            ImportData(spc_ie, elements_ie,analogs_ie, quantities_ie);
+
+            var db_elements_to_delete = cnt.Elements.ToList().Except(elements_ie.Intersect(cnt.Elements.ToList(), new ElementComparer()), new ElementComparer()).ToList();
+            var db_spc_to_delete = cnt.Specifications.ToList().Except(spc_ie.Intersect(cnt.Specifications.ToList(), new SpecificationComparer()), new SpecificationComparer()).ToList();
+
+            cnt.Elements.RemoveRange(db_elements_to_delete);
+            cnt.Specifications.RemoveRange(db_spc_to_delete);
+            cnt.SaveChanges();
+
+            var elements_except = elements_ie.Except(cnt.Elements.ToList(),new ElementComparer()).ToList();
+            var spc_except = spc_ie.Except(cnt.Specifications.ToList(), new SpecificationComparer()).ToList();
+
+            ImportData(spc_except, elements_except);
         }
 
 
-        public void ImportData(IEnumerable<Specification> spc, IEnumerable<Element> elements, IEnumerable<Analog> analogs, IEnumerable<ElementQuantity> quantities)
+        public void ImportData(IEnumerable<Specification> spc, IEnumerable<Element> elements)
         {
-            cnt.Database.Log = s => Debug.WriteLine(s);
-            foreach (var el in elements)
+            cnt.Database.Log = delegate (string s)
             {
-                var existing = cnt.Elements.Find(el.Code);
-                if (existing == null)
+                using (var writer = new StreamWriter("log.txt", append:true))
                 {
-                    cnt.Elements.Add(el);
+                    writer.WriteLine(s);
                 }
-                else
-                {
-                    cnt.Entry(existing).CurrentValues.SetValues(el);
-                }
-            }
-            foreach (var el in spc)
-            {
-                var existing = cnt.Specifications.Find(el.Code);
-                if (existing == null)
-                {
-                    cnt.Specifications.Add(el);
-                }
-                else
-                {
-                    cnt.Entry(existing).CurrentValues.SetValues(el);
-                }
-            }
-            spc = null;
-            elements = null;
+            };
+            cnt.Elements.AddRange(elements);
+            cnt.Specifications.AddRange(spc);
             cnt.SaveChanges();
         }
 
