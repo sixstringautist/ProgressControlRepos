@@ -10,10 +10,10 @@ namespace ProgressControl.DAL.Interfaces
     {
 
         IEnumerable<T> GetAll();
-        T Get(int id);
+        T Get(Func<T,bool> predicate);
         IEnumerable<T> Filter(Func<T, bool> predicate);
-        void Create(T item);
-        void Update(T item);
-        void Delete(int id);
+        bool Create(T item);
+        bool Update(T item);
+        bool Delete(T Item);
     }
 }

@@ -41,13 +41,10 @@ namespace ProgressControl.WEB
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             DependencyResolver.SetResolver(new CustomResolver());
-            var context = new RsContext("Host=localhost;Port=5432;Username=postgres;Password=root;Database=SMT_Updating_Repository");
-            DBF_Connector conn = new DBF_Connector(new System.Data.OleDb.OleDbConnection(@"Provider=VFPOLEDB.1;Data Source=H:\ДИПЛОМНАЯ РАБОТА\SMT;User ID=admin"), context);
-
+            DBF_Connector conn = new DBF_Connector(new System.Data.OleDb.OleDbConnection(@"Provider=VFPOLEDB.1;Data Source=H:\ДИПЛОМНАЯ РАБОТА\SMT;User ID=admin"), 
+                DependencyResolver.Current.GetService<RsContext>());
             HangfireAspNet.Use(GetHangfireServers);
-
-            conn.BackgroundTask();
-            context.Elements.FirstOrDefault(x => x.Code == 8);
+            //conn.BackgroundTask();
         }
     }
 }

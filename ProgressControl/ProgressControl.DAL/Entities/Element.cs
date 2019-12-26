@@ -20,9 +20,11 @@ namespace ProgressControl.DAL.Entities
         public string Un { get; set; }
 
 
-        public ICollection<Analog> Parents { get; set; }
-        public ICollection<Analog> Childrens { get; set; }
 
+        public virtual ICollection<Analog> Parents { get; set; }
+        public virtual ICollection<Analog> Childrens { get; set; }
+
+        public virtual ICollection<Smt_box> Boxes { get; set; }
 
         public Element()
         {

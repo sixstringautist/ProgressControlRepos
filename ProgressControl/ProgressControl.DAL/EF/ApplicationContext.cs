@@ -14,7 +14,7 @@ namespace ProgressControl.DAL.EF
 
         public RsContext(string connectionString): base(connectionString)
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<RsContext>());
+            Database.SetInitializer(new DropCreateDatabaseAlways<RsContext>());
         }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

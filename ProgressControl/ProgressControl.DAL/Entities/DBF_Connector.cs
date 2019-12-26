@@ -56,6 +56,8 @@ namespace ProgressControl.DAL.Entities
         public string DefaultConnection { get; set; }
         public string ConnectionString { get => mainConnection.ConnectionString;}
 
+        public bool IsComplete { get; private set; }
+
         private DbCommand CreateCommand(string command, TableName tname, params string[] colname)
         {
             string CreateColumns()
@@ -78,7 +80,6 @@ namespace ProgressControl.DAL.Entities
 
         public async Task<IEnumerable<DBObject<int>>> GetEntitiesAsync(TableName tname, DatabaseObjectCreator<int> creator)
         {
-
             var command = CreateCommand("select", tname);
             var reader = command.ExecuteReaderAsync();
             Task<IEnumerable<DBObject<int>>> t = Task.Factory.StartNew<IEnumerable<DBObject<int>>>(delegate ()
@@ -115,6 +116,7 @@ namespace ProgressControl.DAL.Entities
 
         public void BackgroundTask()
         {
+            IsComplete = false;
             var spc = GetEntitiesAsync(TableName.spc, new SpecificationCreator());
             var elements = GetEntitiesAsync(TableName.elements, new ElementCreator());
             var analogs = GetEntitiesAsync(TableName.analogs, new AnalogsCreator());
@@ -138,18 +140,19 @@ namespace ProgressControl.DAL.Entities
             var spc_except = spc_ie.Except(cnt.Specifications.ToList(), new SpecificationComparer()).ToList();
 
             ImportData(spc_except, elements_except);
+            IsComplete = true;
         }
 
 
         public void ImportData(IEnumerable<Specification> spc, IEnumerable<Element> elements)
         {
-            cnt.Database.Log = delegate (string s)
-            {
-                using (var writer = new StreamWriter("log.txt", append:true))
-                {
-                    writer.WriteLine(s);
-                }
-            };
+            //cnt.Database.Log = delegate (string s)
+            //{
+            //    using (var writer = new StreamWriter("log.txt", append:true))
+            //    {
+            //        writer.WriteLine(s);
+            //    }
+            //};
             cnt.Elements.AddRange(elements);
             cnt.Specifications.AddRange(spc);
             cnt.SaveChanges();

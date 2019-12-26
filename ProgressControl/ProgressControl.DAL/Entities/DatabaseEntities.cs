@@ -15,6 +15,7 @@ namespace ProgressControl.DAL.Entities
     public abstract class OneReferenceEntity<TRef, TKey> : DBObject<TKey>
         where TRef : class
     {
+        public virtual int NavPropId { get; set; }
         public virtual TRef NavProp { get; set; }
     }
 
