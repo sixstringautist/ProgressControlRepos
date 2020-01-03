@@ -113,7 +113,6 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 var tmp = db.Elements.Find(item.Code);
                 if (tmp != null)
                 {
-                    tmp.Boxes = item.Boxes;
                     tmp.Childrens = item.Childrens;
                     tmp.Parents = item.Parents;
                     tmp.Quantity = item.Quantity;
@@ -235,7 +234,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
             if (d.State != "Processing")
             {
-                if (db.SmtBoxes.FirstOrDefault(x => x.Smt_boxId == item.Smt_boxId && x.ElementId == item.ElementId) == null)
+                if (db.SmtBoxes.FirstOrDefault(x => x.Code == item.Code && x.ElementId == item.ElementId) == null)
                 {
                     db.SmtBoxes.Add(item);
                     return true;
@@ -253,13 +252,12 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
             if (d.State != "Processing")
             {
-                var tmp = db.SmtBoxes.FirstOrDefault(x => x.ElementId == item.ElementId && x.Smt_boxId == item.Smt_boxId);
+                var tmp = db.SmtBoxes.FirstOrDefault(x => x.ElementId == item.ElementId && x.Code == item.Code);
                 if (tmp != null)
                 {
                     tmp.Quantity = item.Quantity;
                     tmp.CreationDate = item.CreationDate;
                     tmp.ElementId = item.ElementId;
-                    tmp.Element = item.Element;
                     tmp.Spent = item.Spent;
                     tmp.InFeeder = item.InFeeder;
                     return true;
@@ -297,7 +295,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         {
             if (Item == null)
                 throw new ArgumentNullException("Item cannot be null");
-            if (db.SmtBoxes.FirstOrDefault(x=> x.Smt_boxId == Item.Smt_boxId && x.ElementId == Item.ElementId) == null)
+            if (db.SmtBoxes.FirstOrDefault(x=> x.Code == Item.Code && x.ElementId == Item.ElementId) == null)
                 return false;
             db.SmtBoxes.Remove(Item);
             return true;

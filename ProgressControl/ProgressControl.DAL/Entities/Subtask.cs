@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProgressControl.DAL.Entities
 {
-    public abstract class AbstractTask<TRef> : RefCollectionEntity<TRef,int>,ITask
+    public abstract class AbstractTask<TRef, TDetails> : RefCollectionEntity<TRef,int>,ITask
         where TRef : class
     {
+        [Key]
+        public override int Code { get; set; }
         public abstract DateTime CreationTime { get; protected set; }
         public abstract DateTime LastPauseTime { get; protected set; }
         public abstract DateTime LastStartTime { get; protected set; }
@@ -21,41 +24,66 @@ namespace ProgressControl.DAL.Entities
         public abstract bool Pause();
         public abstract bool Start();
 
-        public virtual List<Details> Need { get; protected set; }
-        public virtual List<Details> Left { get; protected set; }
+        public Details<TDetails> Details { get; set; }
 
 
         protected abstract bool CanComplete();
         public abstract void AddToDone(object obj);
 
+
     }
 
-    public struct Details
+
+    public class Details<T> : DBObject<int>
     {
-        public int ElementId { get; private set; }
-        public int Quantity { get; set; }
-        public Details(int id, int quantity)
-        {
-            ElementId = id;
-            Quantity = quantity;
-        }
+        public override int Code { get; set; }
+        public virtual ICollection<T> Subtasks { get; set; }
+
     }
 
-    public class Subtask : AbstractTask<Specification>
+    public class SubtaskDetails : Details<AreaTask>
     {
 
-        int done;
+        public int TaskId { get; set; }
+
+        public AreaTask Task {get; set;}
+
+        public int SubtaskId { get; set; }
+        public Subtask Subtask { get; set; }
+
+
+        public SubtaskDetails()
+        { }
+
+    }
+
+    //TODO: Смотрю сюда, тебе надо сообразить как получать состояние задачи участка
+
+    public class Subtask : AbstractTask<AreaTask,SubtaskDetails>
+    {
 
 
         public override State WorkState { get; protected set; }
         public int Priority { get; set; }
 
-        
+        public int SpecificationId { get; set; }
+        public Specification Specification { get; private set; }
 
+        public event Action UpdateParent
+        {
+            add 
+            {
+                UpdateParent += value;
+            }
+            remove
+            {
+                UpdateParent += value;
+            } 
+        }
 
 
         public int TaskId { get; private set; }
-        public Task Task { get; set; }
+        public RsTask Task { get; set; }
         public override DateTime CreationTime { get; protected set; }
         public override DateTime LastPauseTime { get; protected set; }
         public override DateTime LastStartTime { get; protected set; }
@@ -68,13 +96,14 @@ namespace ProgressControl.DAL.Entities
             LastPauseTime = DateTime.MinValue;
             LastStartTime = DateTime.MinValue;
             CompleteTime = DateTime.MinValue;
+            Need = new List<Details>();
+            Left = new List<Details>();
         }
         public Subtask(int need) : this()
         {
-            var tmp = new Details(Collection.First().Code, need);
-            Need = new List<Details>();
+            var tmp = new Details(Collection.First().Code, need,this);
+            
             Need.Add(tmp);
-            Left = new List<Details>();
             Left.Add(tmp);
         }
 
@@ -85,9 +114,7 @@ namespace ProgressControl.DAL.Entities
             if (obj.GetType() != typeof(int))
                 throw new ArgumentException($"Invalid dype");
             done += Math.Abs((int)obj);
-            Left.Clear();
-            int left = Need.First().Quantity - done;
-            Left.Add(new Details(Need.First().ElementId,  left < 0 ? 0 : left ));
+            Left.First().Quantity = Need.First().Quantity - done;
         }
        
         public override bool Start()
@@ -150,11 +177,19 @@ namespace ProgressControl.DAL.Entities
 
     }
     #region AreaTasks
-    public abstract class AreaTask : Subtask
+    
+
+    public class AreaTask : Subtask
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public override int Code { get; set; }
         public int AreaId { get; set; }
-        public RsArea Area { get; set; }
-        public ICollection<DBObject<int>> TaskWarehouse { get; private set; }
+        public virtual RsArea Area { get; set; }
+
+        public AreaTask() : base()
+        {
+        }
 
         public override bool Complete()
         {
@@ -222,7 +257,7 @@ namespace ProgressControl.DAL.Entities
 
         public void RemoveBox(int id)
         {
-            TaskWarehouse.Remove(TaskWarehouse.Single(x => x.Code == id));
+            Need.Remove(Need.Single(x => x.ElementId == id));
         }
         public override void AddToDone(object obj)
         {
@@ -235,7 +270,7 @@ namespace ProgressControl.DAL.Entities
 
             if (Left.Count != 0)
             {
-                AddBox(box);
+
             }
         }
 
@@ -250,17 +285,7 @@ namespace ProgressControl.DAL.Entities
         {
             foreach (var el in Collection.First().Collection)
             {
-                Need.Add(new Details(el.Code, el.Quantity));
-            }
-        }
-
-        private void AddBox(Smt_box box)
-        {
-            if (Collection.First().Collection.FirstOrDefault(x => x.Code == box.ElementId) != null
-                && TaskWarehouse.FirstOrDefault(x => x.Code == box.Code) == null)
-            {
-                TaskWarehouse.Add(box);
-                SetLeft();
+                Need.Add(new Details(,));
             }
         }
 
@@ -270,19 +295,7 @@ namespace ProgressControl.DAL.Entities
         {
             Need.ForEach(x => 
             {
-                var exists = TaskWarehouse.Where(y => { return (y as Smt_box).ElementId == x.ElementId ? true : false; }).Cast<Smt_box>().ToList();
-                var sum = exists.Sum(z => z.Quantity);
-                var _left = Need.Single(z => z.ElementId == x.ElementId).Quantity - sum;
-                if (_left > 0)
-                {
-                    if (!Left.Exists(el => el.ElementId == x.ElementId))
-                        Left.Add(new Details(x.ElementId, _left));
-                    else
-                    {
-                        Left.Remove(Left.Find(e => e.ElementId == x.ElementId));
-                        Left.Add(new Details(x.ElementId, _left));
-                    }
-                }
+                Left.Add(new Details(x.ElementId, x.Quantity));
             });
 
         }
@@ -305,7 +318,7 @@ namespace ProgressControl.DAL.Entities
 
         public override List<Details> Need { get; protected set; }
         public override List<Details> Left { get; protected set; }
-        int done;
+
 
 
 

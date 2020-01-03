@@ -11,12 +11,14 @@ namespace ProgressControl.DAL.Entities
     [Table("Smt_Boxes")]
     public class Smt_box : Element
     {
-        [Key, Column(name:"BoxId", Order = 1)]
+        [Key, Column(name:"BoxId", Order = 1),DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Code { get;  set; }
 
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         [Column(name: "ElementId", Order = 0)]
+        [ForeignKey("Element")]
         public  int ElementId { get; set; }
+        public Element Element { get; protected set; }
 
         public bool InFeeder { get; set; }
 
@@ -27,6 +29,8 @@ namespace ProgressControl.DAL.Entities
 
 
         public DateTime CreationDate { get; set; }
+
+
 
         public Smt_box()
         {

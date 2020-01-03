@@ -121,7 +121,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EF\TaskContext.cs" />
     <Compile Include="Entities\Analog.cs" />
     <Compile Include="Entities\Creators.cs" />
     <Compile Include="Entities\DatabaseEntities.cs" />

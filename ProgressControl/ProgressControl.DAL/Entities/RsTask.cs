@@ -16,7 +16,7 @@ namespace ProgressControl.DAL.Entities
         New = 0
     }
 
-    public abstract class RsArea : DBObject<int>
+    public class RsArea : DBObject<int>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,32 +24,16 @@ namespace ProgressControl.DAL.Entities
 
         public string Name { get; set; }
 
-        public abstract ICollection<AreaTask> AreaTasks { get; set; }
-        public abstract ICollection<AreaRelation> Childs { get; set; }
-        public abstract ICollection<AreaRelation> Parents { get; set; }
+        public virtual ICollection<AreaTask> AreaTasks { get; protected set; }
+
+        public RsArea()
+        {
+            AreaTasks = new List<AreaTask>();
+        }
+
 
     }
 
-
-    public class AreaRelation : ManyToManyRelation<RsArea, RsArea, int, int>
-    {
-        public override int Code { get; set; }
-        public override int CodeTwo { get; set; }
-    }
-
-    public class WarehouseArea : RsArea
-    {
-        public override ICollection<AreaTask> AreaTasks { get; set; }
-        public override ICollection<AreaRelation> Childs { get; set; }
-        public override ICollection<AreaRelation> Parents { get; set; }
-    }
-    public class SmtArea : RsArea
-    {
-
-        public override ICollection<AreaTask> AreaTasks { get ; set; }
-        public override ICollection<AreaRelation> Childs { get; set; }
-        public override ICollection<AreaRelation> Parents { get; set; }
-    }
 
     public interface ITask
     {
@@ -74,6 +58,7 @@ namespace ProgressControl.DAL.Entities
         public override DateTime CompleteTime { get; protected set; }
 
         public override State WorkState { get; protected set; }
+
 
 
         public RsTask()
@@ -118,9 +103,13 @@ namespace ProgressControl.DAL.Entities
                 case State.Complete:
                     return false;
                 case State.InProcess:
-                    WorkState = State.InProcess;
-                    CompleteTime = DateTime.Now;
-                    return true;
+                    if (CanComplete())
+                    {
+                        WorkState = State.InProcess;
+                        CompleteTime = DateTime.Now;
+                        return true;
+                    }
+                    return false;
                 case State.New:
                     return false;
                 case State.Paused:
@@ -134,7 +123,7 @@ namespace ProgressControl.DAL.Entities
         //TODO:Определить эти методы
         protected override bool CanComplete()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public override void AddToDone(object obj)
