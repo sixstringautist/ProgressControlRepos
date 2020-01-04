@@ -122,12 +122,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Analog.cs" />
+    <Compile Include="Entities\AreaTasks.cs" />
     <Compile Include="Entities\Creators.cs" />
     <Compile Include="Entities\DatabaseEntities.cs" />
     <Compile Include="Entities\DBF_Connector.cs" />
     <Compile Include="Entities\Element.cs" />
     <Compile Include="Entities\ElementQuantity.cs" />
     <Compile Include="EF\EntitiesContext.cs" />
+    <Compile Include="Entities\RsAreas.cs" />
     <Compile Include="Entities\Subtask.cs" />
     <Compile Include="Entities\RsTask.cs" />
     <Compile Include="Entities\Smt_box.cs" />
@@ -139,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

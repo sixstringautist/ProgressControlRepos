@@ -2,29 +2,30 @@
 using ProgressControl.DAL.Interfaces;
 using ProgressControl.DAL.EF;
 using System;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using Hangfire.Storage;
-using Hangfire.States;
-using System.Collections.Generic;
-using ProgressControl.DAL.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
 namespace ProgressControl.WEB_New_.Model.Repositories
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
+
+        //TODO: Не все методы Update реализованы, доделай!
         RsContext db;
 
         IStorageConnection hangfireStorage;
         JobData d;
 
-       
+
 
         public UnitOfWork(RsContext db, IStorageConnection hangfireStorage)
         {
             this.db = db;
             this.hangfireStorage = hangfireStorage;
         }
+
 
 
 
@@ -50,6 +51,12 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             db.SaveChangesAsync();
         }
 
+        private IEnumerable<TResult> GetAll<TResult>(DbSet<TResult> set)
+            where TResult : class
+        {
+            return set.ToList();
+        }
+
         public IEnumerable<Element> GetAll()
         {
             d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
@@ -60,7 +67,21 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             else return null;
         }
 
-        public Element Get(Func<Element,bool> predicate)
+
+        private TResult Get<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
+            where TResult : DBObject<int>
+        {
+            CheckNull(set);
+            CheckNull(predicate);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                return set.FirstOrDefault(predicate);
+            }
+            else return null;
+
+        }
+        public Element Get(Func<Element, bool> predicate)
         {
             if (predicate == null)
                 throw new ArgumentNullException("Predicate cannot be null");
@@ -71,6 +92,27 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 return db.Elements.FirstOrDefault(predicate);
             }
             else return null;
+        }
+        private void CheckNull<T>(params T[] par)
+            where T : class
+        {
+            foreach (var el in par)
+            {
+                if(el == null)
+                    throw new ArgumentNullException($"{nameof(el)} cannot be null") { };
+            }
+        }
+        private IEnumerable<TResult> Filter<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
+            where TResult : class
+        {
+            CheckNull(predicate);
+            CheckNull(set);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                return set.Where(predicate);
+            }
+            else return new List<TResult>();
         }
 
         public IEnumerable<Element> Filter(Func<Element, bool> predicate)
@@ -84,6 +126,24 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 return db.Elements.Where(predicate);
             }
             else return null;
+        }
+
+        private bool Create<TCreate>(DbSet<TCreate> set, TCreate item)
+            where TCreate : DBObject<int>
+        {
+            CheckNull(set);
+            CheckNull(item);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                if (db.Elements.Find(item.Code) == null)
+                {
+                    set.Add(item);
+                    return true;
+                }
+                else throw new Exception($"Element with code{item.Code} alredy exist");
+            }
+            return false;
         }
 
         public bool Create(Element item)
@@ -126,6 +186,23 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             return false;
         }
 
+
+        private bool Delete<TDelete>(DbSet<TDelete> set, TDelete item)
+            where TDelete : DBObject<int>
+        {
+            CheckNull(set);
+            CheckNull(item);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                if (set.Find(item.Code) != null)
+                {
+                    set.Remove(item);
+                    return true;
+                }
+            }
+            return false;
+        }
         public bool Delete(Element item)
         {
             if (item == null)
@@ -299,6 +376,130 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 return false;
             db.SmtBoxes.Remove(Item);
             return true;
+        }
+
+        IEnumerable<RsTask> IRepository<RsTask>.GetAll()
+        {
+            return db.GlobalTasks.ToList();
+        }
+
+        public RsTask Get(Func<RsTask, bool> predicate)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException("Predicate cannot be null");
+            return db.GlobalTasks.FirstOrDefault(predicate);
+        }
+
+        public IEnumerable<RsTask> Filter(Func<RsTask, bool> predicate)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException("Predicate cannot be null");
+            return db.GlobalTasks.Where(predicate);
+        }
+
+        public bool Create(RsTask item)
+        {
+            return Create(db.GlobalTasks, item);
+        }
+
+        public bool Update(RsTask item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(RsTask Item)
+        {
+            return Delete(db.GlobalTasks, Item);
+        }
+
+        IEnumerable<RsArea> IRepository<RsArea>.GetAll()
+        {
+            return GetAll(db.RsAreas);
+        }
+
+        public RsArea Get(Func<RsArea, bool> predicate)
+        {
+            return Get(db.RsAreas, predicate);
+        }
+
+        public IEnumerable<RsArea> Filter(Func<RsArea, bool> predicate)
+        {
+            return Filter(db.RsAreas, predicate);
+        }
+
+        public bool Create(RsArea item)
+        {
+            return Create(db.RsAreas, item);
+        }
+
+        public bool Update(RsArea item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(RsArea Item)
+        {
+            return Delete(db.RsAreas, Item);
+        }
+
+        IEnumerable<AreaTask> IRepository<AreaTask>.GetAll()
+        {
+            return GetAll(db.AreaTasks);
+        }
+
+        public AreaTask Get(Func<AreaTask, bool> predicate)
+        {
+            return Get(db.AreaTasks, predicate);
+        }
+
+        public IEnumerable<AreaTask> Filter(Func<AreaTask, bool> predicate)
+        {
+            return Filter(db.AreaTasks, predicate);
+        }
+
+        public bool Create(AreaTask item)
+        {
+            return Create(db.AreaTasks, item);
+        }
+
+        public bool Update(AreaTask item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(AreaTask Item)
+        {
+            return Delete(db.AreaTasks, Item);
+        }
+
+        IEnumerable<Subtask> IRepository<Subtask>.GetAll()
+        {
+            return GetAll(db.SubTasks);
+        }
+
+        public Subtask Get(Func<Subtask, bool> predicate)
+        {
+            return Get(db.SubTasks, predicate);
+        }
+
+        public IEnumerable<Subtask> Filter(Func<Subtask, bool> predicate)
+        {
+            return Filter(db.SubTasks, predicate);
+        }
+
+        public bool Create(Subtask item)
+        {
+            return Create(db.SubTasks, item);
+        }
+
+        public bool Update(Subtask item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(Subtask Item)
+        {
+            return Delete(db.SubTasks, Item);
         }
     }
 }

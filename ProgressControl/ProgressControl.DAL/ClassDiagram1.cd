@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ProgressControl.DAL.Entities.Analog" Collapsed="true">
+    <Position X="15" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAABAAgAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Analog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.AreaTask" Collapsed="true">
+    <Position X="16" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAQAoGAAAAICAgAggAAAAgAAAAAAgAAAgAAAAAA=</HashCode>
+      <FileName>Entities\AreaTasks.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.WarehouseTask" Collapsed="true">
+    <Position X="14.75" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAAACAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Entities\AreaTasks.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.SmtLineTask" Collapsed="true">
+    <Position X="17" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\AreaTasks.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.DatabaseObjectCreator&lt;TKey&gt;" Collapsed="true">
+    <Position X="19.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.EntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="21.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.OneReferenceEntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="24" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.CreatRefCollectionEntity&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="19.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.TwoReferenceEntityCreator&lt;TResult, TKey&gt;" Collapsed="true">
+    <Position X="21.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.CreateRelation&lt;TRel, TKey&gt;" Collapsed="true">
+    <Position X="16.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAACAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.CreateManyToMany&lt;NPropOne, NPropTwo, TKey, TKeyTwo&gt;" Collapsed="true">
+    <Position X="16.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.SpecificationCreator" Collapsed="true">
+    <Position X="24" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.ElementCreator" Collapsed="true">
+    <Position X="21.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.AnalogsCreator" Collapsed="true">
+    <Position X="17.25" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.ElementQuantityCreator" Collapsed="true">
+    <Position X="15" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Creators.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.DBObject&lt;TKey&gt;" Collapsed="true">
+    <Position X="11.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.OneReferenceEntity&lt;TRef, TKey&gt;" Collapsed="true">
+    <Position X="3.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAQAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.RefCollectionEntity&lt;TRef, TKey&gt;" Collapsed="true">
+    <Position X="10.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.TwoRefCollectionEntity&lt;TRef, TRefTwo, TKey&gt;" Collapsed="true">
+    <Position X="10.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.ManyToManyRelation&lt;NPropOne, NPropTwo, TKey, TKeyTwo&gt;" Collapsed="true">
+    <Position X="16" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACBAAAAAAAAAAAAAAAAAAAAABAAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.ElementComparer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="26" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.SpecificationComparer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="24.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.DBF_Connector" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="24.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAgAACAAAQCAAAAMAAEAAAAAAAAAQCAAAAAIAAA=</HashCode>
+      <FileName>Entities\DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.Element" Collapsed="true">
+    <Position X="12.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAkAAQAAAACAAAAAAAAgAAIAAI=</HashCode>
+      <FileName>Entities\Element.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.ElementQuantity" Collapsed="true">
+    <Position X="17.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAgAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Entities\ElementQuantity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.RsArea" Collapsed="true">
+    <Position X="20.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAgAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\RsAreas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.WarehouseArea" Collapsed="true">
+    <Position X="19.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\RsAreas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.SmtLineArea" Collapsed="true">
+    <Position X="21.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\RsAreas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.AbstractTask&lt;TRef&gt;" Collapsed="true">
+    <Position X="4.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAoCAAAAIAAAAggAAAAgAAAAAAgAAAgAAAAAA=</HashCode>
+      <FileName>Entities\RsTask.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.RsTask" Collapsed="true">
+    <Position X="6" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAoCAAAAICAAAAgAAAAgQAIAAAgAAAgAAAEAA=</HashCode>
+      <FileName>Entities\RsTask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.Smt_box" Collapsed="true">
+    <Position X="12.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAQUAQAAAAAAEACAAggAAAABAAAAAAACAEAAAAAAAA=</HashCode>
+      <FileName>Entities\Smt_box.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.Specification" Collapsed="true">
+    <Position X="8.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAABAACAAgAAQAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Specification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.Subtask" Collapsed="true">
+    <Position X="3.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAoCAAABIEAgAAgAAAAkAAAAAAgAAAgAAAAAA=</HashCode>
+      <FileName>Entities\Subtask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.Entities.Container" Collapsed="true">
+    <Position X="1.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Subtask.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProgressControl.DAL.EF.RsContext" Collapsed="true">
+    <Position X="29.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAACAAAAAQgAAAEEAAAAAAACAAAAAIAAA=</HashCode>
+      <FileName>EF\EntitiesContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="ProgressControl.DAL.Entities.ISelfReferenceCollection&lt;TRef&gt;" Collapsed="true">
+    <Position X="24.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Entities\DatabaseEntities.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ProgressControl.DAL.Entities.ITask" Collapsed="true">
+    <Position X="26" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAgCAAAAIAAAAAgAAAAgAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Entities\RsTask.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="ProgressControl.DAL.Entities.TableName" Collapsed="true">
+    <Position X="26" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAABAAAAAAAAAAAAAAAAAAAAACgAAAAAA=</HashCode>
+      <FileName>Entities\DBF_Connector.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ProgressControl.DAL.Entities.State" Collapsed="true">
+    <Position X="24.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAkAAAAAAAAACIAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\RsTask.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

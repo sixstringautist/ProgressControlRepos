@@ -25,8 +25,6 @@ namespace ProgressControl.DAL.Entities
         public virtual ICollection<Analog> Childrens { get; set; }
 
 
-        public virtual ICollection<AreaTask> Task { get; set; }
-
         public virtual ICollection<Smt_box> Boxes { get; set; }
 
 
@@ -36,7 +34,7 @@ namespace ProgressControl.DAL.Entities
             Parents = new List<Analog>();
             Childrens = new List<Analog>();
             Boxes = new List<Smt_box>();
-            //Task = null;
+
         }
 
     }

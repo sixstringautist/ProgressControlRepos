@@ -16,24 +16,26 @@ namespace ProgressControl.DAL.Entities
         New = 0
     }
 
-    public class RsArea : DBObject<int>
+
+    public abstract class AbstractTask<TRef> : OneReferenceEntity<TRef, int>, ITask
+       where TRef : class
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Code { get; set; }
+        public abstract DateTime CreationTime { get; protected set; }
+        public abstract DateTime LastPauseTime { get; protected set; }
+        public abstract DateTime LastStartTime { get; protected set; }
+        public abstract DateTime CompleteTime { get; protected set; }
 
-        public string Name { get; set; }
+        public abstract State WorkState { get; protected set; }
 
-        public virtual ICollection<AreaTask> AreaTasks { get; protected set; }
-
-        public RsArea()
-        {
-            AreaTasks = new List<AreaTask>();
-        }
+        public abstract bool Complete();
+        public abstract bool Pause();
+        public abstract bool Start();
 
 
+        protected abstract bool CanComplete();
     }
-
 
     public interface ITask
     {
@@ -45,7 +47,8 @@ namespace ProgressControl.DAL.Entities
         bool Pause();
         bool Complete();
     }
-    public class RsTask :AbstractTask<Subtask>, ITask
+
+    public class RsTask :AbstractTask<RsTask>
     {
         private DateTime _creationTime;
 
@@ -59,11 +62,17 @@ namespace ProgressControl.DAL.Entities
 
         public override State WorkState { get; protected set; }
 
+        public ICollection<Subtask> Subtasks { get; set; }
+
+        [NotMapped]
+        public override int NavPropId { get => base.NavPropId; set => base.NavPropId = value; }
+        [NotMapped]
+        public override RsTask NavProp { get => base.NavProp; set => base.NavProp = value; }
+
 
 
         public RsTask()
         {
-            Collection = new List<Subtask>();
             CreationTime = DateTime.Now;
         }
 
@@ -124,11 +133,6 @@ namespace ProgressControl.DAL.Entities
         protected override bool CanComplete()
         {
             return false;
-        }
-
-        public override void AddToDone(object obj)
-        {
-            throw new NotImplementedException();
         }
     }
 }

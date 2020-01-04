@@ -21,12 +21,18 @@ namespace ProgressControl.DAL.Entities
         public Element Element { get; protected set; }
 
         public bool InFeeder { get; set; }
+        public bool InComplect { get; set; }
 
-        public int CurrentQuantity => Quantity - Spent;
+        public int BoxQuanttity { get; set; }
+
+        [NotMapped]
+        public int CurrentQuantity => BoxQuanttity - Spent;
         public int Spent { get; set; }
 
         public int DischargeLosses { get; set; }
 
+        public int ContainerId { get; set; }
+        public virtual Container Container { get; set; }
 
         public DateTime CreationDate { get; set; }
 
