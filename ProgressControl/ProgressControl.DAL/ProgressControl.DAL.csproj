@@ -121,6 +121,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EF\RsInitializator.cs" />
     <Compile Include="Entities\Analog.cs" />
     <Compile Include="Entities\AreaTasks.cs" />
     <Compile Include="Entities\Creators.cs" />

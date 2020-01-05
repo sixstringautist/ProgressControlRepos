@@ -7,10 +7,19 @@ using System.Web.Mvc;
 using System.Web.Providers;
 using System.Web.Security;
 using ProgressControl.WEB.Models;
+using ProgressControl.WEB_New_.Model.Repositories;
+using ProgressControl.DAL.EF;
+using Hangfire;
 namespace ProgressControl.WEB.Controllers
 {
     public class HomeController : Controller
     {
+        private UnitOfWork u;
+        
+        public HomeController()
+        {
+            u = new UnitOfWork(DependencyResolver.Current.GetService<RsContext>(), JobStorage.Current.GetConnection());
+        }
 
         public ActionResult Index()
         {
@@ -41,6 +50,15 @@ namespace ProgressControl.WEB.Controllers
         {
             FormsAuthentication.SignOut();
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                u.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

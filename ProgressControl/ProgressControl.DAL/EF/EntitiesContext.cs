@@ -22,7 +22,7 @@ namespace ProgressControl.DAL.EF
 
         public RsContext(string connectionString): base(connectionString)
         {
-            Database.SetInitializer(new DropCreateDatabaseAlways<RsContext>());
+            Database.SetInitializer(new RsInitializator());
             Database.Initialize(false);
         }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -40,6 +40,8 @@ namespace ProgressControl.DAL.EF
                 x.MapInheritedProperties();
                 x.ToTable("Elements");
             });
+            modelBuilder.Entity<Element>().HasKey(x => x.Code);
+            modelBuilder.Entity<Element>().Property(x => x.Code).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Smt_box>().Map(x =>
             {

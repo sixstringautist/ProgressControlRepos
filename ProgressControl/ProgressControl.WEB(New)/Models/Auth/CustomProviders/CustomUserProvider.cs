@@ -8,11 +8,11 @@ using System.Text;
 using System.Web.Mvc;
 using System.Configuration.Provider;
 using PagedList;
+using ProgressControl.WEB_New_.Models.Auth.CustomProviders;
 namespace ProgressControl.WEB.Models.Auth.CustomProviders
 {
     public class CustomUserProvider : MembershipProvider
     {
-        UserContext db;
         private string _applicationName;
 
         private  bool _enablePasswordRetrieval;
@@ -35,7 +35,6 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         private  string _passwordStrengthRegularExpression;
 
-        //TODO: Implement Provider Methods
         public override bool EnablePasswordRetrieval => _enablePasswordRetrieval;
 
         public override bool EnablePasswordReset => _enablePasswordReset;
@@ -69,224 +68,137 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
         }
         public CustomUserProvider() : base()
         {
-            this.db = DependencyResolver.Current.GetService<UserContext>();
+
         }
 
-        public CustomUserProvider(UserContext db)
-        {
-            this.db = db;
-        }
 
-        private void ThrowOnEmptyOrNull(params string[] parameters)
-        {
-            foreach (var el in parameters)
-            {
-                if (el == "")
-                    throw new ArgumentException("Parameter cannot be empty");
-
-                if (el == null)
-                    throw new ArgumentNullException("Parameter cannot be null");
-            }
-        }
 
         public override bool ChangePassword(string username, string oldPassword, string newPassword)
         {
-            ThrowOnEmptyOrNull(oldPassword, newPassword);
-
-            var user = db.Users.FirstOrDefault(x => x.UserName == username);
-            var res = user.ChangePassword(oldPassword, newPassword);
-            user.LastActivityDate = DateTime.Now;
-            if (res)
+            using (var tmp = new Crutch())
             {
-                db.Entry(user).State = System.Data.Entity.EntityState.Modified;
-                db.SaveChanges();
+                return tmp.ChangePassword(username, oldPassword, newPassword);
             }
-            return res;
         }
 
         public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
         {
-            ThrowOnEmptyOrNull(password, newPasswordQuestion, newPasswordAnswer);
-
-            var user = db.Users.FirstOrDefault(x => x.UserName == username);
-            bool res = user.ChangePasswordQuestionAndAnswer(password, newPasswordQuestion, newPasswordAnswer);
-            user.LastActivityDate = DateTime.Now;
-            if (res)
+            using (var tmp = new Crutch())
             {
-                db.Entry(user).State = System.Data.Entity.EntityState.Modified;
-                db.SaveChanges();
+                return tmp.ChangePasswordQuestionAndAnswer(username, password, newPasswordQuestion, newPasswordAnswer);
             }
-            return res;
         }
 
          public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
-            ThrowOnEmptyOrNull(username,password);
-
-            var user = new User("","","",this.ToString(),username, providerUserKey, email,passwordQuestion,"", isApproved,DateTime.Now,DateTime.MinValue,DateTime.MinValue,DateTime.MinValue,DateTime.MinValue);
-            if (db.Users.FirstOrDefault(x => x.UserName == user.UserName) == null)
+            using (var tmp = new Crutch())
             {
-                user.LastActivityDate = DateTime.Now;
-                db.Users.Add(user);
-                db.SaveChanges();
-                status = MembershipCreateStatus.Success;
-                return user;
-            }
-            else
-            {
-                status = MembershipCreateStatus.DuplicateUserName;
-                return null;
+                return tmp.CreateUser(username, password, email, passwordQuestion, passwordAnswer, isApproved, providerUserKey, out status);
             }
             
         }
 
         public override bool DeleteUser(string username, bool deleteAllRelatedData)
         {
-            ThrowOnEmptyOrNull(username);
-
-            var user = db.Users.FirstOrDefault(x => x.UserName == username);
-            
-            if (user != null)
+            using (var tmp = new Crutch())
             {
-                db.Users.Remove(user);
-                db.SaveChanges();
-                return true;
-            }
-            else
-            {
-                return false;
+                return tmp.DeleteUser(username, deleteAllRelatedData);
             }
         }
 
         public override MembershipUserCollection FindUsersByEmail(string emailToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            ThrowOnEmptyOrNull(emailToMatch);
-            if (pageSize <= 0)
-                throw new ArgumentException("Page size must be more than zero");
-
-            totalRecords = db.Users.Count(x => x.Email == emailToMatch);
-            var users = db.Users.ToPagedList(pageIndex, pageSize).Where(x=> x.Email == emailToMatch);
-            MembershipUserCollection collection = new MembershipUserCollection();
-            foreach (var user in users)
-                collection.Add(user);
-
-            return collection;
+            using (var tmp = new Crutch())
+            {
+               return tmp.FindUsersByEmail(emailToMatch, pageIndex, pageSize, out totalRecords);
+            }
         }
 
         public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            ThrowOnEmptyOrNull(usernameToMatch);
-            if (pageSize <= 0)
-                throw new ArgumentException("Page size must be more than zero");
-
-            totalRecords = db.Users.Count(x => x.UserName == usernameToMatch);
-            var users = db.Users.ToPagedList(pageIndex, pageSize).Where(x => x.UserName == usernameToMatch);
-            MembershipUserCollection collection = new MembershipUserCollection();
-            foreach (var user in users)
-                collection.Add(user);
-
-            return collection;
+            using (var tmp = new Crutch())
+            {
+                return tmp.FindUsersByName(usernameToMatch, pageIndex, pageSize, out totalRecords);
+            }
         }
 
         public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
         {
-            if (pageSize <= 0)
-                throw new ArgumentException("Page size must be more than zero");
-            totalRecords = db.Users.Count();
-            var users = db.Users.ToPagedList(pageIndex, pageSize);
-            MembershipUserCollection collection = new MembershipUserCollection();
-            foreach (var user in users)
-                collection.Add(user);
-            return collection;
+            using (var tmp = new Crutch())
+            {
+                return tmp.GetAllUsers(pageIndex, pageIndex, out totalRecords);
+            }
         }
 
         public override int GetNumberOfUsersOnline()
         {
-            int count = 0;
-            foreach (var user in db.Users)
+            using (var tmp = new Crutch())
             {
-                if (user.IsOnline)
-                    count++;
+                return tmp.GetNumberOfUsersOnline();
             }
-            return count;
         }
 
         public override string GetPassword(string username, string answer)
         {
-            throw new NotImplementedException();
+            using (var tmp = new Crutch())
+            {
+                return tmp.GetPassword(username,answer);
+            }
         }
 
         public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)
         {
-            throw new NotImplementedException();
+            using (var tmp = new Crutch())
+            {
+                return tmp.GetUser(providerUserKey,userIsOnline);
+            }
         }
 
         public override MembershipUser GetUser(string username, bool userIsOnline)
         {
-            ThrowOnEmptyOrNull(username);
-            var usr =  db.Users.FirstOrDefault(x => x.UserName == username);
-            if (userIsOnline)
+            using (var tmp = new Crutch())
             {
-                usr.LastActivityDate = DateTime.Now;
+                return tmp.GetUser(username,userIsOnline);
             }
-            return usr;
         }
 
         public override string GetUserNameByEmail(string email)
         {
-            throw new NotImplementedException();
+            using (var tmp = new Crutch())
+            {
+                return tmp.GetUserNameByEmail(email);
+            }
         }
 
         public override string ResetPassword(string username, string answer)
         {
-            throw new NotImplementedException();
+            using (var tmp = new Crutch())
+            {
+                return tmp.ResetPassword(username,answer);
+            }
         }
 
         public override bool UnlockUser(string userName)
         {
-            var user = db.Users.FirstOrDefault(x => x.UserName == userName);
-
-            if (user != null)
-                return user.UnlockUser();
-            else return false;
+            using (var tmp = new Crutch())
+            {
+                return tmp.UnlockUser(userName);
+            }
         }
 
         public override void UpdateUser(MembershipUser user)
         {
-            var usr = user as User;
-            var tmp = db.Users.FirstOrDefault(x => x.UserName == usr.UserName);
-            if (tmp == null)
-                throw new ProviderException("User not exists");
-            tmp.Collection = usr.Collection;
-            tmp.Comment = usr.Comment;
-            tmp.Email = usr.Email;
-            tmp.FirstName = usr.FirstName;
-            tmp.LastName = usr.LastName;
-            tmp.Patronimyc = usr.Patronimyc;
-            tmp.LastActivityDate = usr.LastActivityDate;
-            tmp.LastLoginDate = usr.LastLoginDate;
-            tmp.LastPasswordChangedDate = usr.LastPasswordChangedDate;
-            tmp.IsApproved = usr.IsApproved;
-            db.Entry(tmp).State = System.Data.Entity.EntityState.Modified;
-            db.SaveChanges();
+            using (var tmp = new Crutch())
+            {
+                tmp.UpdateUser(user);
+            }
         }
 
         public override bool ValidateUser(string username, string password)
         {
-            ThrowOnEmptyOrNull(username);
-            var user = db.Users.FirstOrDefault(x => x.UserName == username);
-            if (user == null)
-                return false;
-            else
+            using (var tmp = new Crutch())
             {
-                if (!user.IsLockedOut && user.Password == password && user.IsApproved)
-                {
-                    user.LastLoginDate = DateTime.Now;
-                    user.LastActivityDate = DateTime.Now;
-                    UpdateUser(user);
-                    return true;
-                }
-                return false;
+                return tmp.ValidateUser(username, password);
             }
         }
 

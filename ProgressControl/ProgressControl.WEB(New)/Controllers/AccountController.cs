@@ -13,7 +13,7 @@ namespace ProgressControl.WEB.Controllers
    
     public class AccountController : Controller
     {
-        // GET: Account
+        // GET: Accounts
         [Authorize(Roles = "admin")]
         public ActionResult Index()
         {

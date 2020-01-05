@@ -1,0 +1,39 @@
+﻿@using ProgressControl.WEB_New_.Models
+@using System.Collections.Generic
+@model List<PlaneViewModel>
+@{
+    ViewBag.Title = "AdminPanel";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @foreach (var plane in Model)
+        {
+            <div class="list-group ">
+                <p>@plane.Code</p>
+                <p>@plane.CreationTime</p>
+                <p>@plane.State</p>
+                <div class="list-group-item container-fluid">
+                    <div class="list-group container-fluid">
+                        @foreach (var el in plane.Subtasks)
+                        {
+                            <div class="list-group-item">
+                                <p>el.Name</p>
+                                <p>el.State</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        @Ajax.ActionLink("CreatePlane", "CreatePlane", new AjaxOptions { UpdateTargetId="result",OnSuccess="OnSuccess"})
+        
+    </div>
+</div>
+
+<script type="text/javascript">
+    function OnSuccess(data)
+    {
+        document.appendChild(data);
+    }
+</script>

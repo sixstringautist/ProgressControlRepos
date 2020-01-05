@@ -12,7 +12,6 @@ namespace ProgressControl.WEB_New_.Model.Repositories
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
 
-        //TODO: Не все методы Update реализованы, доделай!
         RsContext db;
 
         IStorageConnection hangfireStorage;
@@ -57,7 +56,13 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             return set.ToList();
         }
 
-        public IEnumerable<Element> GetAll()
+        public IEnumerable<TResult> GetAll<TResult>()
+           where TResult  : DBObject<int>
+        {
+            return (this as IRepository<TResult>).GetAll();
+        }
+
+        IEnumerable<Element> IRepository<Element>.GetAll()
         {
             d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
             if (d.State != "Processing")
@@ -404,7 +409,20 @@ namespace ProgressControl.WEB_New_.Model.Repositories
 
         public bool Update(RsTask item)
         {
-            throw new NotImplementedException();
+            CheckNull(item);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                var tmp = db.GlobalTasks.FirstOrDefault(x => x.Code == item.Code);
+                if (tmp != null)
+                {
+                    tmp.Code = item.Code;
+                    tmp.NavProp = item.NavProp;
+                    tmp.Subtasks = item.Subtasks;
+                    return true;
+                }
+            }
+                return false;
         }
 
         public bool Delete(RsTask Item)
@@ -434,7 +452,19 @@ namespace ProgressControl.WEB_New_.Model.Repositories
 
         public bool Update(RsArea item)
         {
-            throw new NotImplementedException();
+            CheckNull(item);
+            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
+            if (d.State != "Processing")
+            {
+                var tmp = db.RsAreas.FirstOrDefault(x => x.Code == item.Code);
+                if (tmp != null)
+                {
+                    tmp.Code = item.Code;
+                    tmp.Name = item.Name;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool Delete(RsArea Item)

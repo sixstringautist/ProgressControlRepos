@@ -55,6 +55,7 @@ namespace ProgressControl.DAL.Entities
         RsContext cnt;
         public string DefaultConnection { get; set; }
         public string ConnectionString { get => mainConnection.ConnectionString;}
+        public bool IsDisposed { get; private set; }
 
         public bool IsComplete { get; private set; }
 
@@ -126,10 +127,10 @@ namespace ProgressControl.DAL.Entities
             var spc_ie = spc.Result.Cast<Specification>().ToList();
             var elements_ie = elements.Result.Cast<Element>().ToList();
             var analogs_ie = analogs.Result.Cast<Analog>().ToList();
-            var quantities_ie = quantities.Result.Cast<ElementQuantity>().ToList(); ;
+            var quantities_ie = quantities.Result.Cast<ElementQuantity>().ToList();
             NavigateEntities(spc_ie, elements_ie, analogs_ie, quantities_ie);
 
-            var db_elements_to_delete = cnt.Elements.ToList().Except(elements_ie.Intersect(cnt.Elements.ToList(), new ElementComparer()), new ElementComparer()).ToList();
+            var db_elements_to_delete = cnt.Elements.ToList().Except(elements_ie.Intersect(cnt.Elements.ToList(), new ElementComparer()).ToList(), new ElementComparer()).ToList();
             var db_spc_to_delete = cnt.Specifications.ToList().Except(spc_ie.Intersect(cnt.Specifications.ToList(), new SpecificationComparer()), new SpecificationComparer()).ToList();
 
             cnt.Elements.RemoveRange(db_elements_to_delete);
@@ -210,6 +211,7 @@ namespace ProgressControl.DAL.Entities
         
         protected void Dispose(bool disposing)
         {
+            IsDisposed = true;
             if (disposing)
             {
                 if (mainConnection != null)

@@ -9,36 +9,28 @@ using System.Configuration;
 using ProgressControl.DAL.Entities;
 namespace ProgressControl.WEB.util
 {
-    public class CustomResolver : IDependencyResolver, IDisposable
+    public class CustomResolver : IDependencyResolver
     {
-        private readonly UserContext userContext;
-        private RsContext rsContext;
-        private DBF_Connector connector;
 
         public CustomResolver()
         {
-            userContext = new UserContext(ConfigurationManager.ConnectionStrings["UsersConnection"].ConnectionString);
-            rsContext = new RsContext(ConfigurationManager.ConnectionStrings["EFConnection"].ConnectionString);
-            connector = new DBF_Connector(new System.Data.OleDb.OleDbConnection(ConfigurationManager.ConnectionStrings["dbfConnection"].ConnectionString), this.rsContext);
+
         }
 
-        public void Dispose()
-        {
-            userContext.Dispose();
-        }
 
         public object GetService(Type serviceType)
         {
             switch (serviceType.Name)
             {
                 case "UserContext":
-                    return userContext;
+                    return Activator.CreateInstance(serviceType, ConfigurationManager.ConnectionStrings["UsersConnection"].ConnectionString);
                     
                 case "RsContext":
-                    return rsContext;
+                    return Activator.CreateInstance(serviceType, ConfigurationManager.ConnectionStrings["EFConnection"].ConnectionString);
 
                 case "DBF_Connector":
-                    return connector;
+                    return Activator.CreateInstance(serviceType, new System.Data.OleDb.OleDbConnection(ConfigurationManager.ConnectionStrings["dbfConnection"].ConnectionString), 
+                        GetService(typeof(RsContext)));
                 default:
                     return null;
             }
