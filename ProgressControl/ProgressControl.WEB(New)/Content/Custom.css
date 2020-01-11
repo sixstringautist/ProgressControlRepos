@@ -1,0 +1,7 @@
+﻿
+.hidden-table {
+    display: none;
+}
+.hidden-table:hover {
+    background-color: inherit !important;
+}

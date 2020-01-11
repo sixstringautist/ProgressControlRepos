@@ -1,0 +1,95 @@
+﻿@using PagedList
+@using PagedList.Mvc;
+@using ProgressControl.WEB_New_.Models
+@model IPagedList<ElementViewModel>
+
+@{
+    ViewBag.Title = "Elements";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-hover table-responsive">
+            <thead class="bg-primary">
+                <tr>
+                    <th scope="col">Код</th>
+                    <th scope="col">Наименование</th>
+                    <th scope="col">Количество</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var el in Model)
+                {
+                    <tr id="@el.ElCode" class="clickable-row">
+                        <td> @Html.DisplayFor(itemModel => el.ElCode)</td>
+                        <td> @Html.DisplayFor(itemModel => el.Name)</td>
+                        <td> @Html.DisplayFor(itemModel => el.Quantity)</td>
+                        <td>
+                            <button class="btn btn-block btn-default AnalogButton">Показать аналоги</button>
+                        </td>
+                    </tr>   
+                    <tr id="Analogs-@el.ElCode" class="hidden-table">
+                        <td colspan="4">
+                            <div class=" container">
+                                <table class="table table-condensed">
+                                    <thead class="bg-info">
+                                        <tr>
+                                            <th scope="col">Код</th>
+                                            <th scope="col">Наименование</th>
+                                            <th scope="col">Количество</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var analog in el.Analogs)
+                                        {
+                                            <tr>
+                                                <td>@Html.DisplayFor(modelItem => analog.ElCode) </td>
+                                                <td>@Html.DisplayFor(modelItem => analog.Name)</td>
+                                                <td>@Html.DisplayFor(modelItem => analog.Quantity)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+        <p class="text-justify">
+            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) из @Model.PageCount
+        </p>
+        @Html.PagedListPager(Model, page => Url.Action("Elements", new { page }))
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(() => {
+            var tmp = $(".clickable-row");
+            tmp.each(() => {
+                $(this).click((e) => {
+                    var id = $(e.target.parentElement).attr("id");
+                    window.location = "@Url.Action("CreateBox","Warehouse")/" + id;
+                });
+            });
+            $(".AnalogButton").click((e) => {
+                var el = $(e.target.parentElement.parentElement).attr("id");
+                var analogs = $(document).find("#Analogs-" + el);
+                switch (analogs.css("display")) {
+                    case "none":
+                        analogs.show();
+                        break;
+                    default:
+                        analogs.hide();
+                        break;
+                }
+            });
+        });
+
+
+    </script>
+}

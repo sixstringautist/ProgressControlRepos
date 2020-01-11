@@ -40,7 +40,8 @@ namespace ProgressControl.WEB_New_.App_Start
             GlobalConfiguration.Configuration.UseActivator(new CustomJobActivator(DependencyResolver.Current));
             app.UseHangfireAspNet(GetHangfireServers);
             app.UseHangfireDashboard();
-           RecurringJob.AddOrUpdate<DBF_Connector>((x) => x.BackgroundTask(), Cron.Daily);
+            //RecurringJob.AddOrUpdate<DBF_Connector>((x) => x.BackgroundTask(), Cron.Daily);
+            BackgroundJob.Enqueue<DBF_Connector>((x) => x.BackgroundTask());
 
 
         }

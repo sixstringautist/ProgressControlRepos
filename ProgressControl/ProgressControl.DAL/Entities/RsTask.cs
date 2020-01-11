@@ -62,7 +62,7 @@ namespace ProgressControl.DAL.Entities
 
         public override State WorkState { get; protected set; }
 
-        public ICollection<Subtask> Subtasks { get; set; }
+        public virtual ICollection<Subtask> Subtasks { get; protected set; }
 
         [NotMapped]
         public override int NavPropId { get => base.NavPropId; set => base.NavPropId = value; }
@@ -74,8 +74,13 @@ namespace ProgressControl.DAL.Entities
         public RsTask()
         {
             CreationTime = DateTime.Now;
+            LastPauseTime = DateTime.MinValue;
+            LastStartTime = DateTime.MinValue;
         }
-
+        public RsTask( List<Subtask> l):this()
+        {
+            this.Subtasks = l;
+        }
         public override bool Start()
         {
             if (WorkState == State.InProcess)

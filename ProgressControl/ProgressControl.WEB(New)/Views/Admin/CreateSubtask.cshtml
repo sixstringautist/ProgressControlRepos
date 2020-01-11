@@ -1,0 +1,9 @@
+﻿@model ProgressControl.WEB_New_.Models.SubtaskViewModel
+
+
+<div id="subtask-@Model.Code" planId="@ViewData["PlanId"]" class="list-group-item">
+    <p id="SubtaskId" class="hidden"> @Model.Code</p>
+    <p id="SubtaskName" class="text-justify">Спецификация: @Model.Name</p>
+    <p id="SubtaskState" class="text-justify">Статус задачи: @Model.State</p>
+    <p id="SuvtaskQuantity" class="text-justify">Количество: @Model.Quantity</p>
+</div>

@@ -27,7 +27,6 @@ namespace ProgressControl.DAL.Entities
 
         public virtual ICollection<Smt_box> Boxes { get; set; }
 
-
         public Element()
         {
             Collection = new List<ElementQuantity>();

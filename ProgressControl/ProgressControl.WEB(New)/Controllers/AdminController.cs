@@ -9,52 +9,80 @@ using ProgressControl.DAL.Entities;
 using System.Web.Security;
 using ProgressControl.DAL.EF;
 using Hangfire;
-
+using ProgressControl.WEB_New_.Models.TaskManager;
 namespace ProgressControl.WEB_New_.Controllers
 {
     [Authorize(Roles ="admin")]
     public class AdminController : Controller
     {
         UnitOfWork u;
-
+        RsTaskManager manager;
         public AdminController()
         {
            u = new UnitOfWork(DependencyResolver.Current.GetService<RsContext>(), JobStorage.Current.GetConnection());
+            manager = new RsTaskManager(u);
         }
-
         public ActionResult Index()
         {
+            var specifications = u.GetAll<Specification>();
+            var SelectList = new SelectList(specifications, "Code", "Name");
+            ViewBag.spc = SelectList;
+            ViewData["SelectedItem"] = new List<SelectListItem>();
             return View("Plans",Plans());
         }
 
 
-        private List<PlaneViewModel> Plans()
+        private List<PlanViewModel> Plans()
         {
-            var model = new List<PlaneViewModel>();
-            var tmp = u.GetAll<RsTask>().ToList();
-            tmp.ForEach(x => model.Add(new PlaneViewModel() { CreationTime = x.CreationTime, State = x.WorkState.ToString(),Code=x.Code }));
+            var model = new List<PlanViewModel>();
+            var tmp = u.GetAll<RsTask>();
+            foreach (var el in tmp)
+            {
+                model.Add(new PlanViewModel() { CreationTime = el.CreationTime, State = el.WorkState.ToString(), Code = el.Code });
+            }
             model.ForEach(x =>
             {
-                tmp.Single(y => y.Code == x.Code)
-                .Subtasks.ToList().ForEach(y =>
+                var el = tmp.Single(y => y.Code == x.Code);
+                el.Subtasks.ToList().ForEach(y =>
                 {
-                    x.Subtasks.Add(new SubtaskViewModel() { Name = y.Specification.Name, State = y.WorkState.ToString()});
+                    x.Subtasks.Add(new SubtaskViewModel() {Code =y.Code ,Name = y.Specification.Name, State = y.WorkState.ToString(),Quantity = y.Quantity});
                 });
             });
 
             return model;
         }
 
-        [HttpGet]
+        [HttpPost]
         public ActionResult CreatePlane()
         {
-            return PartialView("CreatePlanePartial");
+            var tmp = manager.CreatePlan();
+            ViewBag.Data = tmp;
+            var specifications = u.GetAll<Specification>();
+            var SelectList = new SelectList(specifications, "Code", "Name");
+            ViewBag.spc = SelectList;
+            ViewData["SelectedItem"] = new List<SelectListItem>();
+            return PartialView("CreatePlanePartial",new PlanViewModel());
         }
 
-        //[HttpPost]
-        //public ActionResult CreatePlane(PlaneViewModel model)
-        //{
+        [HttpPost]
+        public ActionResult CreateSubtaskForPlane(int planId,int spcId, int quantity )
+        {
+            SubtaskViewModel model = (SubtaskViewModel)manager.AddSubtaskToPlan((uint)planId, (uint)spcId, (uint)quantity) ?? new SubtaskViewModel();
 
-        //}
+            ViewData["PlanId"] = planId;
+            return PartialView("CreateSubtask",model);
+        }
+
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                u.Dispose();
+                manager.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 }

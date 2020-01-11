@@ -71,6 +71,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
             if (db.Users.FirstOrDefault(x => x.UserName == user.UserName) == null)
             {
                 user.LastActivityDate = DateTime.Now;
+                user.ChangePassword(null, password);
                 db.Users.Add(user);
                 db.SaveChanges();
                 status = MembershipCreateStatus.Success;

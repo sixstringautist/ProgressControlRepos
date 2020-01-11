@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Hangfire;
+using ProgressControl.DAL.EF;
+using ProgressControl.WEB.Models;
+using ProgressControl.WEB_New_.Model.Repositories;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,16 +10,12 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Providers;
 using System.Web.Security;
-using ProgressControl.WEB.Models;
-using ProgressControl.WEB_New_.Model.Repositories;
-using ProgressControl.DAL.EF;
-using Hangfire;
 namespace ProgressControl.WEB.Controllers
 {
     public class HomeController : Controller
     {
         private UnitOfWork u;
-        
+
         public HomeController()
         {
             u = new UnitOfWork(DependencyResolver.Current.GetService<RsContext>(), JobStorage.Current.GetConnection());
@@ -23,7 +23,11 @@ namespace ProgressControl.WEB.Controllers
 
         public ActionResult Index()
         {
-            return View();  
+            if (User.IsInRole("admin"))
+            {
+                return RedirectToAction("Index","Admin");
+            }
+            return View();
         }
 
         [HttpPost]
@@ -33,7 +37,7 @@ namespace ProgressControl.WEB.Controllers
 
             if (ModelState.IsValid)
             {
-                if (Membership.ValidateUser(user.Username,user.Password))
+                if (Membership.ValidateUser(user.Username, user.Password))
                 {
                     FormsAuthentication.SetAuthCookie(user.Username, true);
                     return RedirectToAction("Index");
@@ -43,7 +47,7 @@ namespace ProgressControl.WEB.Controllers
                     ModelState.AddModelError("", "NotFound");
                 }
             }
-            return View("Index",user);
+            return View("Index", user);
         }
 
         public ActionResult LogOff()

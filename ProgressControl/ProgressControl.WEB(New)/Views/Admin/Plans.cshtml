@@ -1,39 +1,128 @@
 ﻿@using ProgressControl.WEB_New_.Models
 @using System.Collections.Generic
-@model List<PlaneViewModel>
+@model List<PlanViewModel>
 @{
-    ViewBag.Title = "AdminPanel";
+                /**/
+
+                ViewBag.Title = "AdminPanel";
 }
 
-<div class="row">
-    <div class="col-md-12">
-        @foreach (var plane in Model)
-        {
-            <div class="list-group ">
-                <p>@plane.Code</p>
-                <p>@plane.CreationTime</p>
-                <p>@plane.State</p>
-                <div class="list-group-item container-fluid">
-                    <div class="list-group container-fluid">
-                        @foreach (var el in plane.Subtasks)
-                        {
-                            <div class="list-group-item">
-                                <p>el.Name</p>
-                                <p>el.State</p>
+<div class="container" style="margin:20px">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="list-group container-fluid Plan">
+                @foreach (var plan in Model)
+                {
+                    <div id="plan-@plan.Code" class="list-group-item container-fluid">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p id="PlanId" class="hidden">@plan.Code</p>
+                                <p id="PlanCreationTime" class="text-justify">Время создания: @plan.CreationTime</p>
+                                <p id="PlanState" class="text-justify">Статус: @plan.State</p>
                             </div>
-                        }
+                            <div class="col-md-4">
+                                <form class="form-inline SubtaskForm" id="Form-@plan.Code">
+                                    @Html.Hidden(value: plan.Code, name: "PlanId")
+                                    @Html.DropDownList("SelectedItem", ViewBag.spc as SelectList, new { @class = "spcId" })
+                                    @Html.TextBox("Quantity", "", new { @class = "form-control", id = "Quantity" })
+                                    <input type="submit" class="btn btn-default" value="Добавить подзадачу" />
+                                </form>
+                            </div>
+                        </div>
+                        <div id="Subtasks-@plan.Code" class="list-group-item container-fluid">
+                            <div class="list-group container-fluid">
+                                @foreach (var el in plan.Subtasks)
+                                {
+                                    <div id="subtask-@el.Code" planId="@plan.Code" class="list-group-item">
+                                        <p id="SubtaskId" class="hidden"> @el.Code</p>
+                                        <p id="SubtaskName" class="text-justify">Спецификация: @el.Name</p>
+                                        <p id="SubtaskState" class="text-justify">Статус задачи: @el.State</p>
+                                        <p id="SubtaskQuantity" class="text-justify">Количество: @el.Quantity</p>
+                                    </div>
+                                }
+                                <div id="SubtaskResult">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                }
+                <div id="result">
                 </div>
             </div>
-        }
-        @Ajax.ActionLink("CreatePlane", "CreatePlane", new AjaxOptions { UpdateTargetId="result",OnSuccess="OnSuccess"})
-        
+            @Ajax.ActionLink("Добавить новый план", "CreatePlane", "Admin", new AjaxOptions { UpdateTargetId = "result", InsertionMode = InsertionMode.InsertAfter, HttpMethod="POST" },new { @class="btn btn-primary"})
+        </div>
     </div>
 </div>
+@section Scripts{
+    <script type="text/javascript">
 
-<script type="text/javascript">
-    function OnSuccess(data)
+    function ButtonEvent(formSelector)
     {
-        document.appendChild(data);
+        let tmp = $("#"+formSelector);
+
+        tmp.submit((e) => {
+            e.preventDefault();
+            let tmp = e.target;
+            let id = $(tmp).find("#PlanId").val();
+            let selected = $(tmp).find("#SelectedItem").val();
+            let Quantity = $(tmp).find("#Quantity").val();
+            if (Quantity <= 0 || Quantity === undefined)
+                return;
+            let d = { PlanId: id, spcId: selected, quantity: Quantity };
+            $.ajax(
+                {
+                    method: "POST",
+                    url: "@Url.Action("CreateSubtaskForPlane", "Admin")",
+                    contentType: "application/json",
+                    data: JSON.stringify(d),
+                    error: function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Not connect.\n Verify Network.';
+                        } else if (jqXHR.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (jqXHR.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
+                        alert(msg);
+                    },
+                    success: function (data) {
+                        let node = $(data);
+                        let tmp = $("#Subtasks-" + node.attr("planId"));
+                        let result = tmp.find("#SubtaskResult");
+                        result.append(node);
+                    }
+                }
+            );
+        });
     }
-</script>
+
+    $(document).ajaxComplete((event) => {
+        $('.spcId').attr("data-live-search", "true").selectpicker();
+        let tmp = $(document).find(".SubtaskForm");
+        tmp.each(function () {
+            $(this).off("submit");
+            ButtonEvent($(this).attr("id"));
+        });
+    });
+
+
+
+    $(document).ready(() => {
+        $('.spcId').attr("data-live-search", "true").selectpicker();
+        let tmp = $(document).find(".SubtaskForm");
+        tmp.each(function () {
+            ButtonEvent($(this).attr("id"));
+        });
+    });
+
+    </script>
+}

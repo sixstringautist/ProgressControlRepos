@@ -1,16 +1,16 @@
-﻿using System;
+﻿using ProgressControl.WEB.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using ProgressControl.WEB.Models;
-using System.Web.Security;
 using System.Web.Providers.Entities;
+using System.Web.Security;
 using MyEntities = ProgressControl.WEB.Models.Auth.Entities;
 
 namespace ProgressControl.WEB.Controllers
 {
-   
+
     public class AccountController : Controller
     {
         // GET: Accounts
@@ -35,14 +35,14 @@ namespace ProgressControl.WEB.Controllers
                     Membership.Provider.UpdateUser(user as MembershipUser);
 
                     Roles.AddUserToRole(model.Username, "user");
-     
+
                 }
                 else
                 {
                     ModelState.AddModelError("", "Не удалось создать пользователя");
                 }
             }
-            return View("Index",model);
+            return View("Index", model);
         }
     }
 }

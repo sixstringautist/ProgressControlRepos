@@ -1,12 +1,13 @@
-﻿using ProgressControl.DAL.Entities;
-using ProgressControl.DAL.Interfaces;
+﻿using Hangfire.Storage;
+using PagedList;
 using ProgressControl.DAL.EF;
+using ProgressControl.DAL.Entities;
+using ProgressControl.DAL.Interfaces;
 using System;
-using System.Runtime.CompilerServices;
-using Hangfire.Storage;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data.Entity;
+using System.Linq;
+using System.Runtime.CompilerServices;
 namespace ProgressControl.WEB_New_.Model.Repositories
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
@@ -15,7 +16,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         RsContext db;
 
         IStorageConnection hangfireStorage;
-        JobData d;
+        RecurringJobDto d;
 
 
 
@@ -29,7 +30,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
 
 
         private bool disposed = false;
-        public virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)
             {
@@ -47,133 +48,118 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         }
         public void Save()
         {
-            db.SaveChangesAsync();
+            db.SaveChanges();
+        }
+        private bool IsNotProcessing()
+        {
+            d = hangfireStorage.GetRecurringJobs().Where(x => x.Id == "DBF_Connector.BackgroundTask").FirstOrDefault();
+            var tmp = d?.LastJobState;
+            if (tmp != "Processing")
+            {
+                return true;
+            }
+            else return false;
+        }
+        private void CheckNull<T>(params T[] par)
+           where T : class
+        {
+            foreach (var el in par)
+            {
+                if (el == null)
+                    throw new ArgumentNullException($"{nameof(el)} cannot be null") { };
+            }
+        }
+        private IEnumerable<TResult> GetAll<TResult>(DbSet<TResult> set)
+            where TResult : DBObject<int>
+        {
+            return ApplyIe(set, x => x);
         }
 
-        private IEnumerable<TResult> GetAll<TResult>(DbSet<TResult> set)
-            where TResult : class
+        private TResult Get<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
+            where TResult : DBObject<int>
         {
-            return set.ToList();
+            return ApplySingle<TResult>(set, x => x.FirstOrDefault(predicate));
         }
+
 
         public IEnumerable<TResult> GetAll<TResult>()
-           where TResult  : DBObject<int>
+           where TResult : DBObject<int>
         {
             return (this as IRepository<TResult>).GetAll();
         }
 
         IEnumerable<Element> IRepository<Element>.GetAll()
         {
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.Elements.ToList();
-            }
-            else return null;
+            return GetAll(db.Elements);
         }
 
+        private RetType Apply<EType, RetType>(DbSet<EType> set, Func<DbSet<EType>, RetType> act)
+            where EType : class
+        {
+            CheckNull(set);
+            CheckNull(act);
+            return act(set);
+        }
 
-        private TResult Get<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
+        private IEnumerable<TResult> ApplyIe<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, IEnumerable<TResult>> act)
             where TResult : DBObject<int>
         {
-            CheckNull(set);
-            CheckNull(predicate);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return set.FirstOrDefault(predicate);
-            }
-            else return null;
-
+            return IsNotProcessing() ? Apply<TResult, IEnumerable<TResult>>(set, act) : new List<TResult>();
         }
+
+        private TResult ApplySingle<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, TResult> act)
+            where TResult : DBObject<int>
+        {
+            return IsNotProcessing() ? Apply<TResult, TResult>(set, act) : default(TResult);
+        }
+
+        private bool CheckIsNotProcessingApply<EType>(DbSet<EType> set, Func<DbSet<EType>, bool> act)
+            where EType : class
+        {
+            return IsNotProcessing() ? Apply(set, act) : false;
+        }
+
         public Element Get(Func<Element, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
+            return ApplySingle(db.Elements, x => x.FirstOrDefault(predicate));
+        }
 
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.Elements.FirstOrDefault(predicate);
-            }
-            else return null;
-        }
-        private void CheckNull<T>(params T[] par)
-            where T : class
-        {
-            foreach (var el in par)
-            {
-                if(el == null)
-                    throw new ArgumentNullException($"{nameof(el)} cannot be null") { };
-            }
-        }
         private IEnumerable<TResult> Filter<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
-            where TResult : class
+            where TResult : DBObject<int>
         {
-            CheckNull(predicate);
-            CheckNull(set);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return set.Where(predicate);
-            }
-            else return new List<TResult>();
+            return ApplyIe(set, x => x.Where(predicate));
         }
 
         public IEnumerable<Element> Filter(Func<Element, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.Elements.Where(predicate);
-            }
-            else return null;
+            return Filter(db.Elements, predicate);
         }
 
         private bool Create<TCreate>(DbSet<TCreate> set, TCreate item)
             where TCreate : DBObject<int>
         {
-            CheckNull(set);
-            CheckNull(item);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+            return CheckIsNotProcessingApply(set, x =>
             {
-                if (db.Elements.Find(item.Code) == null)
+                if (x.FirstOrDefault(y => y.Code == item.Code) == null)
                 {
-                    set.Add(item);
+                    x.Add(item);
                     return true;
                 }
-                else throw new Exception($"Element with code{item.Code} alredy exist");
-            }
-            return false;
+                else return false;
+            });
         }
 
         public bool Create(Element item)
         {
-            if (item == null)
-                throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                if (db.Elements.Find(item.Code) == null)
-                {
-                    db.Elements.Add(item);
-                    return true;
-                }
-                else throw new Exception($"Element with code{item.Code} alredy exist");
-            }
-            return false;
+            return Create(item);
         }
 
         public bool Update(Element item)
         {
             if (item == null)
                 throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+
+            if (IsNotProcessing())
             {
                 var tmp = db.Elements.Find(item.Code);
                 if (tmp != null)
@@ -195,83 +181,45 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         private bool Delete<TDelete>(DbSet<TDelete> set, TDelete item)
             where TDelete : DBObject<int>
         {
-            CheckNull(set);
-            CheckNull(item);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+            return CheckIsNotProcessingApply(set, x =>
             {
-                if (set.Find(item.Code) != null)
+                if (x.Find(item.Code) != null)
                 {
-                    set.Remove(item);
+                    x.Remove(item);
                     return true;
                 }
-            }
-            return false;
+                else return false;
+            });
         }
         public bool Delete(Element item)
         {
-            if (item == null)
-                throw new ArgumentNullException("Item cannot be null");
-
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                if (db.Elements.Find(item.Code) != null)
-                {
-                    db.Elements.Remove(item);
-                    return true;
-                }
-            }
-            return false;
+            return Delete(item);
         }
 
         IEnumerable<Specification> IRepository<Specification>.GetAll()
         {
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.Specifications.ToList();
-            }
-            return null;
+
+            return GetAll(db.Specifications);
         }
 
 
 
-            public IEnumerable<Specification> Filter(Func<Specification, bool> predicate)
+        public IEnumerable<Specification> Filter(Func<Specification, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.Specifications.Where(predicate);
-            }
-            return null;
+            return Filter(db.Specifications, predicate);
         }
 
         public bool Create(Specification item)
         {
-            if (item == null)
-                throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                if (db.Specifications.Find(item.Code) == null)
-                {
-                    db.Specifications.Add(item);
-                }
-                else throw new Exception($"Element with code{item.Code} alredy exist");
-
-            }
-            return false;
+            return Create(db.Specifications,item);
         }
 
         public bool Update(Specification item)
         {
             if (item == null)
                 throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+
+            if (IsNotProcessing())
             {
                 var tmp = db.Specifications.Find(item.Code);
                 if (tmp != null)
@@ -288,56 +236,42 @@ namespace ProgressControl.WEB_New_.Model.Repositories
 
         IEnumerable<Smt_box> IRepository<Smt_box>.GetAll()
         {
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.SmtBoxes.ToList();
-            }
-            return null;
+            return GetAll(db.SmtBoxes);
         }
 
 
-            public IEnumerable<Smt_box> Filter(Func<Smt_box, bool> predicate)
+        public IEnumerable<Smt_box> Filter(Func<Smt_box, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
-            {
-                return db.SmtBoxes.Where(predicate);
-            }
-            return null;
+            return Filter(predicate);
         }
 
-        public bool Create(Smt_box item)
+        private bool BoxCreate(Smt_box item)
         {
-            if (item == null)
-                throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+            return CheckIsNotProcessingApply(db.SmtBoxes, x =>
             {
-                if (db.SmtBoxes.FirstOrDefault(x => x.Code == item.Code && x.ElementId == item.ElementId) == null)
+                if (x.FirstOrDefault(y => y.Code == item.Code && y.ElementId == item.ElementId) == null)
                 {
-                    db.SmtBoxes.Add(item);
+                    x.Add(item);
                     return true;
                 }
-                else throw new Exception($"Smnt_box with");
-            }
-
-            return false;
+                else return false;
+            });
+        }
+        public bool Create(Smt_box item)
+        {
+            return BoxCreate(item);
         }
 
         public bool Update(Smt_box item)
         {
             if (item == null)
                 throw new ArgumentNullException("Item cannot be null");
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+
+            if (IsNotProcessing())
             {
                 var tmp = db.SmtBoxes.FirstOrDefault(x => x.ElementId == item.ElementId && x.Code == item.Code);
                 if (tmp != null)
                 {
-                    tmp.Quantity = item.Quantity;
                     tmp.CreationDate = item.CreationDate;
                     tmp.ElementId = item.ElementId;
                     tmp.Spent = item.Spent;
@@ -350,56 +284,37 @@ namespace ProgressControl.WEB_New_.Model.Repositories
 
         public Specification Get(Func<Specification, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-            return db.Specifications.FirstOrDefault(predicate);
+            return Get(db.Specifications, predicate);
         }
 
         public Smt_box Get(Func<Smt_box, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-            return db.SmtBoxes.FirstOrDefault(predicate);
+            return Get(db.SmtBoxes, predicate);
         }
 
         public bool Delete(Specification Item)
         {
-            if (Item == null)
-                throw new ArgumentNullException("Item cannot be null");
-            if (db.Specifications.Find(Item.Code) == null)
-                return false;
-            db.Specifications.Remove(Item);
-            return true;
-
+            return Delete(db.Specifications, Item);
         }
 
         public bool Delete(Smt_box Item)
         {
-            if (Item == null)
-                throw new ArgumentNullException("Item cannot be null");
-            if (db.SmtBoxes.FirstOrDefault(x=> x.Code == Item.Code && x.ElementId == Item.ElementId) == null)
-                return false;
-            db.SmtBoxes.Remove(Item);
-            return true;
+            return Delete(db.SmtBoxes, Item);
         }
 
         IEnumerable<RsTask> IRepository<RsTask>.GetAll()
         {
-            return db.GlobalTasks.ToList();
+            return GetAll(db.GlobalTasks);
         }
 
         public RsTask Get(Func<RsTask, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-            return db.GlobalTasks.FirstOrDefault(predicate);
+            return Get(db.GlobalTasks, predicate);
         }
 
         public IEnumerable<RsTask> Filter(Func<RsTask, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentNullException("Predicate cannot be null");
-            return db.GlobalTasks.Where(predicate);
+            return Filter(db.GlobalTasks, predicate);
         }
 
         public bool Create(RsTask item)
@@ -410,19 +325,18 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         public bool Update(RsTask item)
         {
             CheckNull(item);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+
+            if (IsNotProcessing())
             {
                 var tmp = db.GlobalTasks.FirstOrDefault(x => x.Code == item.Code);
                 if (tmp != null)
                 {
                     tmp.Code = item.Code;
                     tmp.NavProp = item.NavProp;
-                    tmp.Subtasks = item.Subtasks;
                     return true;
                 }
             }
-                return false;
+            return false;
         }
 
         public bool Delete(RsTask Item)
@@ -453,8 +367,8 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         public bool Update(RsArea item)
         {
             CheckNull(item);
-            d = hangfireStorage.GetJobData("DBF_Connector.BackgroundTask");
-            if (d.State != "Processing")
+
+            if (IsNotProcessing())
             {
                 var tmp = db.RsAreas.FirstOrDefault(x => x.Code == item.Code);
                 if (tmp != null)
@@ -530,6 +444,66 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         public bool Delete(Subtask Item)
         {
             return Delete(db.SubTasks, Item);
+        }
+
+        public IEnumerable<WarehouseTask> GetAll()
+        {
+            return GetAll(db.WarehouseTasks);
+        }
+
+        public WarehouseTask Get(Func<WarehouseTask, bool> predicate)
+        {
+            return Get(db.WarehouseTasks,predicate);
+        }
+
+        public IEnumerable<WarehouseTask> Filter(Func<WarehouseTask, bool> predicate)
+        {
+            return Filter(db.WarehouseTasks, predicate);
+        }
+
+        public bool Create(WarehouseTask item)
+        {
+            return Create(db.WarehouseTasks, item);
+        }
+
+        public bool Update(WarehouseTask item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(WarehouseTask Item)
+        {
+            return Delete(db.WarehouseTasks, Item);
+        }
+
+        IEnumerable<SmtLineTask> IRepository<SmtLineTask>.GetAll()
+        {
+            return GetAll(db.SmtLineTasks);
+        }
+
+        public SmtLineTask Get(Func<SmtLineTask, bool> predicate)
+        {
+            return Get(db.SmtLineTasks, predicate);
+        }
+
+        public IEnumerable<SmtLineTask> Filter(Func<SmtLineTask, bool> predicate)
+        {
+            return Filter(db.SmtLineTasks, predicate);
+        }
+
+        public bool Create(SmtLineTask item)
+        {
+            return Create(db.SmtLineTasks, item);
+        }
+
+        public bool Update(SmtLineTask item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(SmtLineTask Item)
+        {
+            return Delete(db.SmtLineTasks, Item);
         }
     }
 }

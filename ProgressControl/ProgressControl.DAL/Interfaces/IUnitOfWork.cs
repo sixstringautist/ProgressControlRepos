@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ProgressControl.DAL.Interfaces
 {
-    public interface IUnitOfWork: IRepository<Element>, IRepository<Specification>, IRepository<Smt_box>, IRepository<RsTask>,IRepository<RsArea>,IRepository<AreaTask>,IRepository<Subtask>
+    public interface IUnitOfWork: IRepository<Element>, IRepository<Specification>, IRepository<Smt_box>, IRepository<RsTask>,IRepository<RsArea>,IRepository<AreaTask>,IRepository<Subtask>,IRepository<WarehouseTask>,IRepository<SmtLineTask>
     {
         void Save();
     }

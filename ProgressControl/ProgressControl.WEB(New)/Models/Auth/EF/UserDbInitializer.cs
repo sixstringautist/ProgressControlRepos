@@ -18,10 +18,19 @@ namespace ProgressControl.WEB.Models.Auth.EF
                 ,"","","",true,DateTime.Now,
                 DateTime.MinValue,DateTime.MinValue,
                 DateTime.MinValue,DateTime.MinValue);
+            var tmp1 = new User("", "", "", "CustomMembershipProvider", "Test", null
+                , "", "", "", true, DateTime.Now,
+                DateTime.MinValue, DateTime.MinValue,
+                DateTime.MinValue, DateTime.MinValue);
+
             tmp.ChangePassword(null, "0000");
+            tmp1.ChangePassword(null, "0000");
+            user.Collection.Add(tmp1);
+            tmp1.Collection.Add(user);
             admin.Collection.Add(tmp);
             tmp.Collection.Add(admin);
             context.Users.Add(tmp);
+            context.Users.Add(tmp1);
             context.Roles.Add(admin);
             context.Roles.Add(user);
             context.SaveChanges();

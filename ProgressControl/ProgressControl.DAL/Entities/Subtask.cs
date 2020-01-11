@@ -15,6 +15,7 @@ namespace ProgressControl.DAL.Entities
         public override State WorkState { get; protected set; }
         public int Priority { get; set; }
 
+        public int Quantity { get; private set; }
         public int SpecificationId { get; set; }
         public virtual Specification Specification { get; private set; }
 
@@ -33,6 +34,11 @@ namespace ProgressControl.DAL.Entities
             LastPauseTime = DateTime.MinValue;
             LastStartTime = DateTime.MinValue;
             CompleteTime = DateTime.MinValue;
+        }
+        public Subtask(Specification spc,int quantity):this()
+        {
+            this.Specification = spc;
+            this.Quantity = quantity;
         }
 
 
@@ -111,7 +117,7 @@ namespace ProgressControl.DAL.Entities
 
     #region AreaSubTasks
 
-    public class Container : OneReferenceEntity<AreaTask, int>
+    public class Container : RefCollectionEntity<AreaTask, int>
     {
         [Key]
         public override int Code { get; set; }
@@ -124,10 +130,19 @@ namespace ProgressControl.DAL.Entities
                 Elements.Add(el);
             }
         }
-        public Container()
+
+        public Container(ICollection<Smt_box> boxes, List<AreaTask> tsks)
         {
-            Elements = new List<Smt_box>();
+            Elements = boxes;
+            Collection = tsks;
         }
+
+        private Container()
+        {
+
+        }
+
+
     }
 
   

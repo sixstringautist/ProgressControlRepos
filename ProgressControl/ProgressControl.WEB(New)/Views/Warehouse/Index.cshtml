@@ -1,0 +1,148 @@
+﻿@using ProgressControl.WEB_New_.Models;
+@using PagedList
+@using PagedList.Mvc;
+@model IPagedList<Smt_BoxViewModel>
+
+
+@{
+    ViewBag.Title = "Катушки";
+}
+<div class="row">
+    <div class="col-md-12">
+        <table class="table">
+            <thead class="bg-primary">
+                <tr>
+                    <th scope="col">Код</th>
+                    <th scope="col">Наименование</th>
+                    <th scope="col">Начальное количество</th>
+                    <th scope="col">Затрачено</th>
+                    <th scope="col">Текущее количество</th>
+                    <th scope="col">Дата добавления</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="box-@item.FullCode">
+                        <td id="Code">@Html.DisplayFor(modelItem => item.FullCode)</td>
+                        <td id="Name">@Html.DisplayFor(modelItem => item.ElementName)</td>
+                        <td id="Quantity">@Html.DisplayFor(modelItem => item.BoxQuantity)</td>
+                        <td id="Spent">@Html.DisplayFor(modelItem => item.Spent)</td>
+                        <td id="CurrentQuantity">@Html.DisplayFor(modelItem => item.CurrentQuantity)</td>
+                        <td id="CreationTime">@Html.DisplayFor(modelItem => item.CreationTime)</td>
+                        <td>
+                            <div class="row"><input type="button" value="Изменить" class="btn btn-default" /> </div>
+                            <div class="row"><input type="button" value="Принять изменения" class="btn btn-default" style="display:none" /></div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8">
+        @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) из @Model.PageCount
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+    </div>
+    <div class="col-lg-offset-10">
+        @Html.ActionLink("Добавить катушку", "Elements", null, new { @class = "btn btn-primary" })
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        function MakeEditable(row)
+        {
+            const tmp = row.find("#Quantity");
+            tmp.html("<input type=text class=form-control + value='" + tmp.html() + "'/>");
+        }
+        function Show(button)
+        {
+            button.show();
+        }
+        function Hide(button) { button.hide();}
+        function UnMake(row)
+        {
+            const tmp = row.find("#Quantity");
+            const input = tmp.find("input");
+            tmp.html("" + input.val());
+        }
+
+        $(document).ready(() =>
+        {
+            var tmp = $("input[value ='Изменить']").each(function ()
+            {
+                $(this).click((e) => {
+                    const tmp = $(e.target).parent();
+                    const row = tmp.parent().parent();
+                    const button = row.find("input[value = 'Принять изменения']");
+                    Show(button);
+                    MakeEditable(row);
+                });
+            });
+            var tmp = $("input[value ='Принять изменения']").each(
+                function ()
+                {
+                $(this).click((e) =>
+                {
+                    const tmp = $(e.target).parent();
+                    const row = tmp.parent().parent();
+                    const fullCode = row.find("#Code").html();
+                    const Quantity = parseInt(row.find("#Quantity").find('input').val(), 10);
+                    if (Quantity < 0 || Quantity === undefined)
+                    {
+                        return;
+                    }
+                    const val = {
+                        FullCode: fullCode,
+                        BoxQuantity: Quantity
+                    };
+                    const d = JSON.stringify({ model : val });
+                    $.ajax(
+                        {
+                        method: "POST",
+                        url: "@Url.Action("SaveChanges")",
+                        context:row,
+                        contentType: "application/json",
+                        dataType:"JSON",
+                        data: d,
+                        success: function (data)
+                        {
+                            if (JSON.parse(data)) {
+                                UnMake(this);
+                                $(this).find("#CurrentQuantity").html($(this).find("#Quantity").html());
+                                Hide($(this).find("input[value = 'Принять изменения']"));
+                            }
+                        },
+                            error: function (jqXHR, exception)
+                            {
+                            var msg = '';
+                            if (jqXHR.status === 0) {
+                                msg = 'Not connect.\n Verify Network.';
+                            } else if (jqXHR.status == 404) {
+                                msg = 'Requested page not found. [404]';
+                            } else if (jqXHR.status == 500) {
+                                msg = 'Internal Server Error [500].';
+                            } else if (exception === 'parsererror') {
+                                msg = 'Requested JSON parse failed.';
+                            } else if (exception === 'timeout') {
+                                msg = 'Time out error.';
+                            } else if (exception === 'abort') {
+                                msg = 'Ajax request aborted.';
+                            } else {
+                                msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                            }
+                            alert(msg);
+                            }
+                        }
+                    );
+                });
+            });
+        });
+    </script>
+}

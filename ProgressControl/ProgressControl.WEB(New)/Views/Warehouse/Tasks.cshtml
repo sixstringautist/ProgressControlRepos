@@ -1,0 +1,58 @@
+﻿@using ProgressControl.WEB_New_.Models
+@using PagedList;
+@using PagedList.Mvc;
+@model IPagedList<WarehouseTaskView>
+
+@{
+    ViewBag.Title = "Задачи склада";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="list-group">
+            @foreach (var item in Model)
+            {
+                var tmp = item.Need.ToPagedList(1, 10);
+                <div class="list-group-item">
+                    <p class="list-group-item-text">@Html.DisplayFor(model => item.Id)</p>
+                    <p class="list-group-item-text">@Html.DisplayFor(model => item.State)</p>
+                    <p class="list-group-item-text">@Html.DisplayFor(model => item.SpcName)</p>
+                    <p class="list-group-item-text">@Html.DisplayFor(model => item.CreationTime)</p>
+                    <div class="list-group container-fluid" id="Elements">
+                        <div class=" list-group-item" >
+                            <table class="table table-hover">
+                                <thead class="bg-info">
+                                    <tr>
+                                        <th scope="col">Код элемента</th>
+                                        <th scope="col">Наименование</th>
+                                        <th scope="col">Количество</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var el in tmp)
+                                    {
+                                        <tr>
+                                            <td>@el.Item1</td>
+                                            <td>@el.Item2</td>
+                                            <td>@el.Item3</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-justify">
+                            @(tmp.PageCount < tmp.PageNumber ? 0 : tmp.PageNumber) из @Model.PageCount
+                        </p>
+                        @Html.PagedListPager(tmp, page => Url.Action("ElementsPager", new { page, Id = item.Id, list = item.Need }), PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions() { HttpMethod = "get", UpdateTargetId = "Elements" }))
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+        <p class="text-justify">
+            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) из @Model.PageCount
+        </p>
+        @Html.PagedListPager(Model, page => Url.Action("Elements", new { page }))
+    </div>
+</div>
