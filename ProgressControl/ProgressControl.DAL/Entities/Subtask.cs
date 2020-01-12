@@ -12,6 +12,15 @@ namespace ProgressControl.DAL.Entities
     public class Subtask : AbstractTask<RsTask>
     {
 
+        class AreaTaskComparer : IComparer<AreaTask>
+        {
+            public int Compare(AreaTask x, AreaTask y)
+            {
+                return x.Code.CompareTo(y);
+            }
+        }
+
+
         public override State WorkState { get; protected set; }
         public int Priority { get; set; }
 
@@ -19,7 +28,33 @@ namespace ProgressControl.DAL.Entities
         public int SpecificationId { get; set; }
         public virtual Specification Specification { get; private set; }
 
-        public virtual ICollection<AreaTask> AreaTasks { get; private set; }
+        public virtual Container Container { get; set; }
+
+        public delegate void CompleteHandler();
+        private event CompleteHandler complete;
+        public event CompleteHandler CompleteEvent
+        {
+            add
+            {
+                if (value != null)
+                    complete += value;
+            }
+            remove
+            {
+                if (value != null)
+                    complete -= value;
+            }
+        }
+        public int Top{ get; set; }
+        List<AreaTask> areaTasks;
+        public virtual ICollection<AreaTask> AreaTasks { get => areaTasks; 
+            private set 
+            {
+                areaTasks = value?.ToList();
+                areaTasks.ForEach(x => x.CompleteEvent += this.OnComplete);
+            } 
+        }
+
 
 
         public override DateTime CreationTime { get; protected set; }
@@ -34,14 +69,22 @@ namespace ProgressControl.DAL.Entities
             LastPauseTime = DateTime.MinValue;
             LastStartTime = DateTime.MinValue;
             CompleteTime = DateTime.MinValue;
+            Top = 0;
         }
         public Subtask(Specification spc,int quantity):this()
         {
             this.Specification = spc;
             this.Quantity = quantity;
+            areaTasks = new List<AreaTask>();
+            Container = new Container(new List<Smt_box>(), areaTasks, this);
         }
 
 
+
+        private void OnComplete()
+        {
+            this.Complete();
+        }
 
         public override bool Start()
         {
@@ -78,7 +121,9 @@ namespace ProgressControl.DAL.Entities
                 if (el.WorkState != State.Complete)
                     return false;
             }
-            return true;
+            if (Top == areaTasks.IndexOf(areaTasks.Last()))
+                return true;
+            else return false;
         }
 
         public override bool Complete()
@@ -92,6 +137,7 @@ namespace ProgressControl.DAL.Entities
                     {
                         WorkState = State.Complete;
                         CompleteTime = DateTime.Now;
+                        complete?.Invoke();
                         return true;
                     }
                     else return false;
@@ -122,19 +168,15 @@ namespace ProgressControl.DAL.Entities
         [Key]
         public override int Code { get; set; }
         public virtual ICollection<Smt_box> Elements { get; protected set; }
-        public void AddElement(Smt_box el)
-        {
-            if (!Elements.Contains(el))
-            {
-                (el as Smt_box).InComplect = true;
-                Elements.Add(el);
-            }
-        }
 
-        public Container(ICollection<Smt_box> boxes, List<AreaTask> tsks)
+      
+        public virtual Subtask Subtask { get; set; }
+
+        public Container(ICollection<Smt_box> boxes, List<AreaTask> tsks, Subtask sbtsk)
         {
             Elements = boxes;
             Collection = tsks;
+            Subtask = sbtsk;
         }
 
         private Container()

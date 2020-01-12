@@ -62,7 +62,14 @@ namespace ProgressControl.DAL.Entities
 
         public override State WorkState { get; protected set; }
 
-        public virtual ICollection<Subtask> Subtasks { get; protected set; }
+        public ICollection<Subtask> subtasks;
+        public virtual ICollection<Subtask> Subtasks { get => subtasks;
+            protected set 
+            {
+                subtasks = value;
+                subtasks?.ToList().ForEach(x => x.CompleteEvent += this.OnComplete);
+            } 
+        }
 
         [NotMapped]
         public override int NavPropId { get => base.NavPropId; set => base.NavPropId = value; }
@@ -108,8 +115,10 @@ namespace ProgressControl.DAL.Entities
                     return false;
             }
         }
-
-
+        private void OnComplete()
+        {
+            this.Complete();
+        }
         public override bool Complete()
         {
             switch (WorkState)

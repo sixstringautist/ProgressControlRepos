@@ -84,7 +84,10 @@ namespace ProgressControl.WEB_New_.Controllers
             int pageNumber = (page ?? 1);
 
             List<WarehouseTaskView> list = new List<WarehouseTaskView>();
-            var tmp = u.GetAll<WarehouseTask>().AsQueryable().Include(x => x.Subtask).Include(x => x.Container).ToList();
+            var tmp = u.GetAll<WarehouseTask>().AsQueryable()
+                .Include(x => x.Subtask)
+                .Include(x => x.Container)
+                .Include(x => x.Container.Elements).ToList();
             tmp.ForEach(x=> list.Add(x));
             Session["list"]=list.ToPagedList(pageNumber, pageSize);
             return View(Session["list"]);

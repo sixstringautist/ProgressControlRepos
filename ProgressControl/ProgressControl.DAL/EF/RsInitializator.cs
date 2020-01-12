@@ -14,9 +14,12 @@ namespace ProgressControl.DAL.EF
         protected override void Seed(RsContext context)
         {
             base.Seed(context);
-            context.RsAreas.Add(new WarehouseArea() { Name="Склад"});
-            context.RsAreas.Add(new SmtLineArea() { Name = "Линия SMT" });
-
+            var Smt = new SmtLineArea(new List<SmtLineTask>()) { Name = "смт" };
+            var Warehouse = new WarehouseArea(new List<WarehouseTask>()) { Name = "склад" };
+            Smt.Generator = new SmtLineGenerator(Smt);
+            Warehouse.Generator = new WarehouseGenerator(Warehouse);
+            context.RsAreas.Add(Smt);
+            context.RsAreas.Add(Warehouse);
         }
     }
 }

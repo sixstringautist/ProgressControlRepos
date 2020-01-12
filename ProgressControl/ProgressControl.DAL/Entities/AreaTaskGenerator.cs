@@ -3,56 +3,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProgressControl.DAL.Entities
 {
     public interface IAreaTaskGenerator
     {
-        void GenerateTasks(Subtask subtask, Container c);
+        void GenerateTasks(Subtask subtask);
     }
 
 
     public abstract class AbstractGenerator : DBObject<int>, IAreaTaskGenerator
     {
+        [ForeignKey("Area")]
         public override int Code { get; set; }
-        public abstract void GenerateTasks(Subtask subtask, Container c);
+        public virtual RsArea Area { get; protected set; }
+        public abstract void GenerateTasks(Subtask subtask);
     }
 
     public class WarehouseGenerator : AbstractGenerator,IAreaTaskGenerator
     {
-        public override int Code { get; set; }
-        public int Areaid { get; protected set; }
-        public WarehouseArea Area { get; protected set; }
+        private WarehouseGenerator()
+        { 
+        }
 
-        public WarehouseGenerator(WarehouseArea area)
+        public WarehouseGenerator(WarehouseArea area):this()
         {
-            this.Area = area;
+            Area = area;
         }
         
-        public override void GenerateTasks(Subtask subtask, Container c)
+        public override void GenerateTasks(Subtask subtask)
         {
-            var tmp = new WarehouseTask(subtask, Area, c);
-            c.Collection.Add(tmp);
-            Area.WarehouseTasks.Add(tmp);
+            var tmp = new WarehouseTask(subtask, Area , subtask.Container);
+            subtask.AreaTasks.Add(tmp);
+            (Area as WarehouseArea).WarehouseTasks.Add(tmp);
         }
     }
 
     public class SmtLineGenerator : AbstractGenerator, IAreaTaskGenerator
     {
-        public override int Code { get; set; }
-        public int AreaId { get; protected set; }
-        public SmtLineArea Area { get; protected set; }
-
+        private SmtLineGenerator()
+        { }
         public SmtLineGenerator(SmtLineArea area)
         {
-            this.Area = area;
+            Area = area;
         }
         
-        public override void GenerateTasks(Subtask subtask, Container c)
+        public override void GenerateTasks(Subtask subtask)
         {
-            var tmp = new SmtLineTask(subtask, Area, c);
-            c.Collection.Add(tmp);
-            Area.SmtLineTasks.Add(tmp);
+            var tmp = new SmtLineTask(subtask, Area, subtask.Container);
+            subtask.AreaTasks.Add(tmp);
+            (Area as SmtLineArea).SmtLineTasks.Add(tmp);
         }
     }
 }

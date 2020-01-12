@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using ProgressControl.DAL.Entities;
 using ProgressControl.WEB_New_.Model.Repositories;
+using System.Data.Entity;
 namespace ProgressControl.WEB_New_.Models.TaskManager
 {
     public class RsTaskManager: IDisposable
@@ -36,11 +37,24 @@ namespace ProgressControl.WEB_New_.Models.TaskManager
             var sbtsk = new Subtask(spc, (int)Quantity);
             sbtsk.NavProp = tmp;
             tmp.Subtasks.Add(sbtsk);
-            var cont = new Container(new List<Smt_box>(), new List<AreaTask>());
-            u.GetAll<RsArea>().ToList().ForEach(x => x.Generator.GenerateTasks(sbtsk, cont));
+            var smt = u.GetAll<RsArea>().AsQueryable().OfType<WarehouseArea>().Include(x => x.WarehouseTasks).Include(x=> x.Generator).Single();
+            var warehouse = u.GetAll<RsArea>().AsQueryable().OfType<SmtLineArea>().Include(x => x.SmtLineTasks).Include(x=> x.Generator).Single();
+
+            smt.Generator.GenerateTasks(sbtsk);
+            warehouse.Generator.GenerateTasks(sbtsk);
+
             u.Save();
           
             return sbtsk;
+        }
+
+        public void AddBoxToContainer(uint AreaTaskId, uint BoxId)
+        {
+            var Task = u.Get(delegate (AreaTask a) { return a.Code == AreaTaskId; }) as WarehouseTask;
+            var Box = u.Get(delegate (Smt_box b) { return b.Code == BoxId; });
+            if (Task == null || Box == null )
+                return;
+            Task.AddElement(Box);
         }
 
         public void Dispose()

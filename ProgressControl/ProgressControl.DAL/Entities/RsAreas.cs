@@ -13,27 +13,36 @@ namespace ProgressControl.DAL.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Code { get; set; }
         public string Name { get; set; }
-        [NotMapped]
-        public AbstractGenerator Generator { get; protected set; }
+        public virtual AbstractGenerator Generator { get; set; }
+
     }
 
     public class WarehouseArea : RsArea
     {
-        public WarehouseArea()
+
+        public virtual ICollection<WarehouseTask> WarehouseTasks { get; set; }
+        private WarehouseArea()
         {
-            WarehouseTasks = new List<WarehouseTask>();
-            base.Generator = new WarehouseGenerator(this);
         }
-        public ICollection<WarehouseTask> WarehouseTasks { get; set; }
+        public WarehouseArea(List<WarehouseTask> list):this()
+        {
+            this.WarehouseTasks = list;
+        }
+        
+
     }
 
     public class SmtLineArea : RsArea
     {
-        public SmtLineArea()
+        public virtual ICollection<SmtLineTask> SmtLineTasks { get; set; }
+        private SmtLineArea()
         {
-            SmtLineTasks = new List<SmtLineTask>();
-            base.Generator = new SmtLineGenerator(this);
+
         }
-        public ICollection<SmtLineTask> SmtLineTasks { get; set; }
+        public SmtLineArea(List<SmtLineTask> list):this()
+        {
+            this.SmtLineTasks = list;
+        }
+        
     }
 }

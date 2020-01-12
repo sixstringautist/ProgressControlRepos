@@ -22,12 +22,15 @@ namespace ProgressControl.WEB_New_
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js", "~/Scripts/bootstrap-select*"));
+                      "~/Scripts/bootstrap.js", 
+                      "~/Scripts/bootstrap-select*"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap*",
                       "~/Content/Custom.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/popper").Include("~/Scripts/esm/popper.min.js"));
         }
     }
 }

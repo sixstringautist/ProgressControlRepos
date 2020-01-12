@@ -19,20 +19,40 @@ namespace ProgressControl.DAL.Entities
         public DateTime LastStartTime { get; protected set; }
         public DateTime CompleteTime { get; protected set ; }
         public State WorkState { get; protected set; }
+        public virtual int AreaId { get; protected set; }
+        public virtual RsArea Area { get; protected set; }
 
+        public int Order { get; protected set; }
         public int SubtaskId { get; set; }
         public virtual Subtask Subtask { get; protected set; }
 
-        public int ContainerId { get; protected set; }
+        public delegate void CompleteHandler();
+        private event CompleteHandler complete;
+
+        public event CompleteHandler CompleteEvent
+        {
+            add
+            {
+                if (value != null)
+                    complete += value;
+            }
+            remove
+            {
+                if (value != null)
+                    complete -= value;
+            }
+        }
+        public int ContainerId { get; set; }
         public virtual Container Container { get; protected set; }
 
-        public AreaTask()
+        public AreaTask(int order)
         {
             CreationTime = DateTime.Now;
             LastPauseTime = DateTime.MinValue;
             LastStartTime = DateTime.MinValue;
             CompleteTime = DateTime.MinValue;
             WorkState = State.New;
+            this.Order = order;
         }
         protected abstract bool CanComplete();
         public bool Complete()
@@ -46,6 +66,7 @@ namespace ProgressControl.DAL.Entities
                     {
                         WorkState = State.Complete;
                         CompleteTime = DateTime.Now;
+                        complete?.Invoke();
                         return true;
                     }
                     else return false;
@@ -87,15 +108,12 @@ namespace ProgressControl.DAL.Entities
 
     public class WarehouseTask : AreaTask
     {
-        public int AreaId { get; private set; }
-        public virtual WarehouseArea Area { get; private set; }
+        public override int AreaId { get; protected set; }
 
-        public override Subtask Subtask { get; protected set; }
-
-        private WarehouseTask() : base()
+        private WarehouseTask() : base(1)
         {
         }
-        public WarehouseTask(Subtask tsk, WarehouseArea warehouse, Container c):base()
+        public WarehouseTask(Subtask tsk, RsArea warehouse, Container c):base(1)
         {
             Subtask = tsk;
             SubtaskId = tsk.Code;
@@ -104,14 +122,22 @@ namespace ProgressControl.DAL.Entities
             base.Container = c;
         }
 
+        public void AddElement(Smt_box el)
+        {
+            if (!Container.Elements.Contains(el))
+            {
+                (el as Smt_box).InComplect = true;
+                Container.Elements.Add(el);
+            }
+        }
 
         public IEnumerable<(int, string, int)> GetNeed()
         {
             var tmp = new List<(int, string, int)>();
             foreach (var el in Subtask.Specification.Collection)
             {
-                var exists = Container.Elements?.Where(x => x.Code == el.Code);
-                var Sum = exists == null ? 0 : exists.Sum(x => x.CurrentQuantity);
+                var exists = Container.Elements.Where(x => x.Code == el.Code);
+                var Sum = exists.Sum(x => x.CurrentQuantity);
                 var left = (el.Quantity * Subtask.Quantity) - Sum;
                 if (left > 0)
                 {
@@ -135,13 +161,10 @@ namespace ProgressControl.DAL.Entities
     }
     public class SmtLineTask : AreaTask
     {
-        public int AreaId { get; private set; }
-        public virtual SmtLineArea Area { get; private set; }
+        public override int AreaId { get; protected set; }
 
-        public override Subtask Subtask { get => base.Subtask; protected set => base.Subtask = value; }
-
-        private SmtLineTask() { }
-        public SmtLineTask(Subtask tsk, SmtLineArea line, Container c) : base()
+        private SmtLineTask():base(2) { }
+        public SmtLineTask(Subtask tsk, RsArea line, Container c) : base(2)
         {
             Subtask = tsk;
             SubtaskId = tsk.Code;

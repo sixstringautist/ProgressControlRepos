@@ -505,5 +505,11 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         {
             return Delete(db.SmtLineTasks, Item);
         }
+
+
+        public RsContext GetContext()
+        {
+            return db;
+        }
     }
 }
