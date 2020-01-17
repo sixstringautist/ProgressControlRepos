@@ -15,25 +15,33 @@ namespace ProgressControl.DAL.Entities
         public string Name { get; set; }
         [NotMapped]
         public AbstractGenerator Generator { get; protected set; }
+
     }
 
     public class WarehouseArea : RsArea
     {
-        public WarehouseArea()
+        public ICollection<WarehouseTask> Tasks { get; private set; }
+        private WarehouseArea()
         {
-            WarehouseTasks = new List<WarehouseTask>();
             base.Generator = new WarehouseGenerator(this);
         }
-        public ICollection<WarehouseTask> WarehouseTasks { get; set; }
+
+        public WarehouseArea(List<WarehouseTask> tasks)
+        {
+            Tasks = tasks;
+        }
     }
 
     public class SmtLineArea : RsArea
     {
+        public ICollection<SmtLineTask> Tasks { get; private set; }
         public SmtLineArea()
         {
-            SmtLineTasks = new List<SmtLineTask>();
             base.Generator = new SmtLineGenerator(this);
         }
-        public ICollection<SmtLineTask> SmtLineTasks { get; set; }
+        public SmtLineArea(List<SmtLineTask> tasks)
+        {
+            Tasks = tasks;
+        }
     }
 }

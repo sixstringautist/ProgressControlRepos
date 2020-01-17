@@ -51,35 +51,34 @@ namespace ProgressControl.DAL.EF
             modelBuilder.Entity<Smt_box>().HasKey(x => x.Code);
             modelBuilder.Entity<Smt_box>().Property(x => x.Code).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 
-            modelBuilder.Entity<Smt_box>().HasRequired(x => x.Container).WithMany(x=> x.Elements).HasForeignKey(x=> x.ContainerId);
+            modelBuilder.Entity<Smt_box>().HasOptional(x => x.Container).WithMany(x=> x.Elements).HasForeignKey(x=> x.ContainerId);
             modelBuilder.Entity<Smt_box>().HasMany(x => x.HistoryPoints).WithRequired(x => x.NavProp);
 
-            modelBuilder.Entity<BoxHistory>().HasRequired(x => x.NavProp).WithMany(x => x.HistoryPoints);
+            modelBuilder.Entity<BoxHistory>().HasRequired(x => x.NavProp).WithMany(x => x.HistoryPoints).HasForeignKey(x=> x.NavPropId);
             modelBuilder.Entity<BoxHistory>().HasKey(x => x.Code);
 
-            modelBuilder.Entity<RsTask>().ToTable("RsTasks");
             modelBuilder.Entity<RsTask>().HasMany(x => x.Subtasks).WithRequired(x => x.NavProp);
             
 
-            modelBuilder.Entity<Subtask>().ToTable("Subtasks");
-            modelBuilder.Entity<Subtask>().HasMany(x => x.AreaTasks).WithRequired(x => x.Subtask);
-            modelBuilder.Entity<Subtask>().HasRequired(x => x.NavProp).WithMany(x => x.Subtasks);
+            modelBuilder.Entity<Subtask>().HasMany(x => x.WarehouseTasks).WithRequired(x => x.Subtask).HasForeignKey(x=> x.SubtaskId);
+            modelBuilder.Entity<Subtask>().HasMany(x => x.SmtLineTasks).WithRequired(x => x.Subtask).HasForeignKey(x=> x.SubtaskId);
+            modelBuilder.Entity<Subtask>().HasRequired(x => x.NavProp).WithMany(x => x.Subtasks).HasForeignKey(x=> x.NavPropId);
             modelBuilder.Entity<Subtask>().HasRequired(x => x.Specification);
-
-            modelBuilder.Entity<AreaTask>().ToTable("AreaTasks");
-            modelBuilder.Entity<AreaTask>().HasRequired(x => x.Subtask).WithMany(x => x.AreaTasks).HasForeignKey(x=> x.SubtaskId);
-            modelBuilder.Entity<AreaTask>().HasRequired(x => x.Container).WithMany(x=> x.Collection).HasForeignKey(x=> x.ContainerId);
+            modelBuilder.Entity<Subtask>().HasRequired(x => x.Container).WithRequiredPrincipal(x => x.NavProp);
 
 
-            modelBuilder.Entity<Container>().HasMany(x => x.Collection).WithRequired(x => x.Container);
-            modelBuilder.Entity<Container>().HasMany(x => x.Elements).WithRequired(x=> x.Container);
-            modelBuilder.Entity<Container>().Property(x => x.Code).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 
-            modelBuilder.Entity<WarehouseArea>().HasMany(x => x.WarehouseTasks).WithRequired(x => x.Area).HasForeignKey(x=> x.AreaId);
-            modelBuilder.Entity<SmtLineArea>().HasMany(x => x.SmtLineTasks).WithRequired(x => x.Area).HasForeignKey(x=> x.AreaId);
 
-            modelBuilder.Entity<WarehouseTask>().HasRequired(x => x.Area).WithMany(x => x.WarehouseTasks);
-            modelBuilder.Entity<SmtLineTask>().HasRequired(x => x.Area).WithMany(x => x.SmtLineTasks);
+            modelBuilder.Entity<Container>().HasRequired(x => x.NavProp).WithRequiredDependent(x => x.Container);
+            modelBuilder.Entity<Container>().HasMany(x => x.Elements).WithOptional(x=> x.Container);
+
+            modelBuilder.Entity<WarehouseArea>().HasMany(x => x.Tasks).WithRequired(x=> x.Area).HasForeignKey(x=> x.AreaId);
+            modelBuilder.Entity<SmtLineArea>().HasMany(x => x.Tasks).WithRequired(x=> x.Area).HasForeignKey(x=> x.AreaId);
+
+            modelBuilder.Entity<WarehouseTask>().HasRequired(x => x.Subtask).WithMany(x => x.WarehouseTasks);
+            modelBuilder.Entity<WarehouseTask>().HasRequired(x => x.Area).WithMany(x=> x.Tasks);
+            modelBuilder.Entity<SmtLineTask>().HasRequired(x => x.Area).WithMany(x=> x.Tasks);
+            modelBuilder.Entity<SmtLineTask>().HasRequired(x => x.Subtask).WithMany(x => x.SmtLineTasks);
 
             modelBuilder.Entity<RsArea>().HasKey(x => x.Code);
 

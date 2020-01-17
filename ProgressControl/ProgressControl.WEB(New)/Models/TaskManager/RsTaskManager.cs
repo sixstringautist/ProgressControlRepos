@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using ProgressControl.DAL.Entities;
 using ProgressControl.WEB_New_.Model.Repositories;
+using System.Data.Entity;
 namespace ProgressControl.WEB_New_.Models.TaskManager
 {
     public class RsTaskManager: IDisposable
@@ -36,8 +37,8 @@ namespace ProgressControl.WEB_New_.Models.TaskManager
             var sbtsk = new Subtask(spc, (int)Quantity);
             sbtsk.NavProp = tmp;
             tmp.Subtasks.Add(sbtsk);
-            var cont = new Container(new List<Smt_box>(), new List<AreaTask>());
-            u.GetAll<RsArea>().ToList().ForEach(x => x.Generator.GenerateTasks(sbtsk, cont));
+            u.GetAll<RsArea>().AsQueryable().OfType<WarehouseArea>().Include(x=> x.Tasks).ToList().ForEach(x => x.Generator.GenerateTasks(sbtsk));
+            u.GetAll<RsArea>().AsQueryable().OfType<SmtLineArea>().Include(x => x.Tasks).ToList().ForEach(x => x.Generator.GenerateTasks(sbtsk));
             u.Save();
           
             return sbtsk;

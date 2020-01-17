@@ -16,6 +16,7 @@ namespace ProgressControl.DAL.Entities
         New = 0
     }
 
+    public delegate void CompleteHandler();
 
     public abstract class AbstractTask<TRef> : OneReferenceEntity<TRef, int>, ITask
        where TRef : class
@@ -33,6 +34,7 @@ namespace ProgressControl.DAL.Entities
         public abstract bool Pause();
         public abstract bool Start();
 
+        abstract public event CompleteHandler CompleteEvent;
 
         protected abstract bool CanComplete();
     }
@@ -52,6 +54,13 @@ namespace ProgressControl.DAL.Entities
     {
         private DateTime _creationTime;
 
+        private event CompleteHandler completeEvent;
+        public override event CompleteHandler CompleteEvent
+        {
+            add { if (value != null) completeEvent += value; }
+            remove { if (value != null) completeEvent -=value; }
+        }
+
         public override DateTime CreationTime { get => _creationTime; protected set => _creationTime = value; }
 
         public override DateTime LastPauseTime { get; protected set; }
@@ -62,7 +71,20 @@ namespace ProgressControl.DAL.Entities
 
         public override State WorkState { get; protected set; }
 
-        public virtual ICollection<Subtask> Subtasks { get; protected set; }
+        private ICollection<Subtask> sbtsk;
+        public virtual ICollection<Subtask> Subtasks { get => sbtsk; 
+            protected set
+            {
+                if (value != null)
+                {
+                    foreach (var el in value)
+                    {
+                        el.CompleteEvent += OnComplete;
+                    }
+                    sbtsk = value;
+                }   
+            }
+        }
 
         [NotMapped]
         public override int NavPropId { get => base.NavPropId; set => base.NavPropId = value; }
@@ -88,6 +110,11 @@ namespace ProgressControl.DAL.Entities
             WorkState = State.InProcess;
             LastStartTime = DateTime.Now;
             return true;
+        }
+
+        private void OnComplete()
+        {
+            this.Complete();
         }
 
         public override bool Pause()

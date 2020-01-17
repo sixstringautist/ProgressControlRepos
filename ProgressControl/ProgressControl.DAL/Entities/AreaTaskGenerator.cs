@@ -8,14 +8,14 @@ namespace ProgressControl.DAL.Entities
 {
     public interface IAreaTaskGenerator
     {
-        void GenerateTasks(Subtask subtask, Container c);
+        void GenerateTasks(Subtask subtask);
     }
 
 
     public abstract class AbstractGenerator : DBObject<int>, IAreaTaskGenerator
     {
         public override int Code { get; set; }
-        public abstract void GenerateTasks(Subtask subtask, Container c);
+        public abstract void GenerateTasks(Subtask subtask);
     }
 
     public class WarehouseGenerator : AbstractGenerator,IAreaTaskGenerator
@@ -29,11 +29,11 @@ namespace ProgressControl.DAL.Entities
             this.Area = area;
         }
         
-        public override void GenerateTasks(Subtask subtask, Container c)
+        public override void GenerateTasks(Subtask subtask)
         {
-            var tmp = new WarehouseTask(subtask, Area, c);
-            c.Collection.Add(tmp);
-            Area.WarehouseTasks.Add(tmp);
+            var tmp = new WarehouseTask(subtask, Area);
+            subtask.WarehouseTasks.Add(tmp);
+            Area.Tasks.Add(tmp);
         }
     }
 
@@ -48,11 +48,11 @@ namespace ProgressControl.DAL.Entities
             this.Area = area;
         }
         
-        public override void GenerateTasks(Subtask subtask, Container c)
+        public override void GenerateTasks(Subtask subtask)
         {
-            var tmp = new SmtLineTask(subtask, Area, c);
-            c.Collection.Add(tmp);
-            Area.SmtLineTasks.Add(tmp);
+            var tmp = new SmtLineTask(subtask, Area);
+            subtask.SmtLineTasks.Add(tmp);
+            Area.Tasks.Add(tmp);
         }
     }
 }

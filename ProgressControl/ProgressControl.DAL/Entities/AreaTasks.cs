@@ -20,11 +20,23 @@ namespace ProgressControl.DAL.Entities
         public DateTime CompleteTime { get; protected set ; }
         public State WorkState { get; protected set; }
 
-        public int SubtaskId { get; set; }
-        public virtual Subtask Subtask { get; protected set; }
 
-        public int ContainerId { get; protected set; }
-        public virtual Container Container { get; protected set; }
+
+        private event CompleteHandler completeEvent;
+        public event CompleteHandler CompleteEvent
+        {
+            add
+            {
+                if (value != null)
+                    completeEvent += value;
+            }
+
+            remove
+            {
+                if (value != null)
+                    completeEvent += value;
+            }
+        }
 
         public AreaTask()
         {
@@ -46,6 +58,7 @@ namespace ProgressControl.DAL.Entities
                     {
                         WorkState = State.Complete;
                         CompleteTime = DateTime.Now;
+                        completeEvent?.Invoke();
                         return true;
                     }
                     else return false;
@@ -87,21 +100,21 @@ namespace ProgressControl.DAL.Entities
 
     public class WarehouseTask : AreaTask
     {
-        public int AreaId { get; private set; }
-        public virtual WarehouseArea Area { get; private set; }
 
-        public override Subtask Subtask { get; protected set; }
+        public int SubtaskId { get; set; }
+        public virtual Subtask Subtask { get; protected set; }
 
+        public virtual int AreaId { get; protected set; }
+        public virtual WarehouseArea Area { get; protected set; }
         private WarehouseTask() : base()
         {
         }
-        public WarehouseTask(Subtask tsk, WarehouseArea warehouse, Container c):base()
+        public WarehouseTask(Subtask tsk, WarehouseArea warehouse):base()
         {
             Subtask = tsk;
             SubtaskId = tsk.Code;
             Area = warehouse;
             AreaId = warehouse.Code;
-            base.Container = c;
         }
 
 
@@ -110,8 +123,8 @@ namespace ProgressControl.DAL.Entities
             var tmp = new List<(int, string, int)>();
             foreach (var el in Subtask.Specification.Collection)
             {
-                var exists = Container.Elements?.Where(x => x.Code == el.Code);
-                var Sum = exists == null ? 0 : exists.Sum(x => x.CurrentQuantity);
+                var exists = Subtask.Container.Elements?.Where(x => x.Code == el.Code);
+                var Sum = exists?.Sum(x => x.CurrentQuantity) ?? 0;
                 var left = (el.Quantity * Subtask.Quantity) - Sum;
                 if (left > 0)
                 {
@@ -124,7 +137,7 @@ namespace ProgressControl.DAL.Entities
         {
             foreach (var el in Subtask.Specification.Collection)
             {
-                var tmp = Container.Elements.Where(x => x.Code == el.Code) as Smt_box;
+                var tmp = Subtask.Container.Elements.Where(x => x.Code == el.Code) as Smt_box;
                 if (tmp == null)
                     return false;
                 if (tmp.BoxQuanttity - el.Quantity > 0)
@@ -135,19 +148,17 @@ namespace ProgressControl.DAL.Entities
     }
     public class SmtLineTask : AreaTask
     {
-        public int AreaId { get; private set; }
-        public virtual SmtLineArea Area { get; private set; }
-
-        public override Subtask Subtask { get => base.Subtask; protected set => base.Subtask = value; }
-
+        public virtual int AreaId { get; protected set; }
+        public virtual SmtLineArea Area { get; protected set; }
+        public int SubtaskId { get; set; }
+        public virtual Subtask Subtask { get; protected set; }
         private SmtLineTask() { }
-        public SmtLineTask(Subtask tsk, SmtLineArea line, Container c) : base()
+        public SmtLineTask(Subtask tsk, SmtLineArea line) : base()
         {
             Subtask = tsk;
             SubtaskId = tsk.Code;
             Area = line;
             AreaId = line.Code;
-            base.Container = c;
         }
         protected override bool CanComplete()
         {

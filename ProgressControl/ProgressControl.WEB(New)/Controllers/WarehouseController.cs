@@ -64,7 +64,6 @@ namespace ProgressControl.WEB_New_.Controllers
             var tmp = u.Get(delegate (Element x) { return x.Code == id; });
             if (tmp != null)
             {
-
                 var box = new Smt_box(tmp);
                 box.ElementId = tmp.Code;
                 tmp.Boxes.Add(box);
@@ -84,7 +83,7 @@ namespace ProgressControl.WEB_New_.Controllers
             int pageNumber = (page ?? 1);
 
             List<WarehouseTaskView> list = new List<WarehouseTaskView>();
-            var tmp = u.GetAll<WarehouseTask>().AsQueryable().Include(x => x.Subtask).Include(x => x.Container).ToList();
+            var tmp = u.GetAll<WarehouseTask>().AsQueryable().Include(x => x.Subtask).ToList();
             tmp.ForEach(x=> list.Add(x));
             Session["list"]=list.ToPagedList(pageNumber, pageSize);
             return View(Session["list"]);
