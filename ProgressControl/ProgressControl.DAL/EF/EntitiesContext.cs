@@ -48,10 +48,11 @@ namespace ProgressControl.DAL.EF
             modelBuilder.Entity<Element>().HasKey(x => x.Code);
             modelBuilder.Entity<Element>().Property(x => x.Code).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
 
-            modelBuilder.Entity<Smt_box>().HasKey(x => x.Code);
+            modelBuilder.Entity<Smt_box>().HasKey(x=> x.Code);
             modelBuilder.Entity<Smt_box>().Property(x => x.Code).HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity);
 
-            modelBuilder.Entity<Smt_box>().HasOptional(x => x.Container).WithMany(x=> x.Elements).HasForeignKey(x=> x.ContainerId);
+
+            modelBuilder.Entity<Smt_box>().HasOptional(x => x.Container).WithMany(x => x.Elements).HasForeignKey(x => x.ContainerId);
             modelBuilder.Entity<Smt_box>().HasMany(x => x.HistoryPoints).WithRequired(x => x.NavProp);
 
             modelBuilder.Entity<BoxHistory>().HasRequired(x => x.NavProp).WithMany(x => x.HistoryPoints).HasForeignKey(x=> x.NavPropId);
@@ -68,9 +69,8 @@ namespace ProgressControl.DAL.EF
 
 
 
-
             modelBuilder.Entity<Container>().HasRequired(x => x.NavProp).WithRequiredDependent(x => x.Container);
-            modelBuilder.Entity<Container>().HasMany(x => x.Elements).WithOptional(x=> x.Container);
+            modelBuilder.Entity<Container>().HasMany(x => x.Elements).WithOptional(x => x.Container).HasForeignKey(x=> x.ContainerId);
 
             modelBuilder.Entity<WarehouseArea>().HasMany(x => x.Tasks).WithRequired(x=> x.Area).HasForeignKey(x=> x.AreaId);
             modelBuilder.Entity<SmtLineArea>().HasMany(x => x.Tasks).WithRequired(x=> x.Area).HasForeignKey(x=> x.AreaId);

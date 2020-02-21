@@ -11,11 +11,11 @@ using PagedList;
 
 namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 {
-    public class Crutch : IDisposable
+    public class Helper : IDisposable
     {
         private UserContext db;
 
-        public Crutch()
+        public Helper()
         {
             this.db = DependencyResolver.Current.GetService<UserContext>();
         }

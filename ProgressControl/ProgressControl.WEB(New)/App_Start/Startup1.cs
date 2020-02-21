@@ -42,8 +42,6 @@ namespace ProgressControl.WEB_New_.App_Start
             app.UseHangfireDashboard();
             //RecurringJob.AddOrUpdate<DBF_Connector>((x) => x.BackgroundTask(), Cron.Daily);
             BackgroundJob.Enqueue<DBF_Connector>((x) => x.BackgroundTask());
-
-
         }
     }
 }

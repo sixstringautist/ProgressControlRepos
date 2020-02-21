@@ -160,10 +160,13 @@ namespace ProgressControl.DAL.Entities
             }
         }
 
-
-        //TODO:Определить эти методы
         protected override bool CanComplete()
         {
+            foreach (var el in sbtsk)
+            {
+                if (el.WorkState != State.Complete)
+                    return false;
+            }
             return false;
         }
     }

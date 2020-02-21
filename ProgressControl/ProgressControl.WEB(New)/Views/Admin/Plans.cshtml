@@ -25,7 +25,8 @@
                                     @Html.Hidden(value: plan.Code, name: "PlanId")
                                     @Html.DropDownList("SelectedItem", ViewBag.spc as SelectList, new { @class = "spcId" })
                                     @Html.TextBox("Quantity", "", new { @class = "form-control", id = "Quantity" })
-                                    <input type="submit" class="btn btn-default" value="Добавить подзадачу" />
+                                    <input type="submit" class="btn btn-default" value="Добавить строку плана" />
+                                    <input type="submit" class="btn btn-primary" value="Просмотреть зарезервированые" />
                                 </form>
                             </div>
                         </div>

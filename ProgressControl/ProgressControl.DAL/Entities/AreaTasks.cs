@@ -103,7 +103,6 @@ namespace ProgressControl.DAL.Entities
 
         public int SubtaskId { get; set; }
         public virtual Subtask Subtask { get; protected set; }
-
         public virtual int AreaId { get; protected set; }
         public virtual WarehouseArea Area { get; protected set; }
         private WarehouseTask() : base()
@@ -162,7 +161,7 @@ namespace ProgressControl.DAL.Entities
         }
         protected override bool CanComplete()
         {
-            return false;
+            return true;
         }
     }
 }

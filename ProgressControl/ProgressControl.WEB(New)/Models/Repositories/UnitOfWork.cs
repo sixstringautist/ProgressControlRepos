@@ -40,7 +40,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 }
                 this.disposed = true;
             }
-        }
+        }   
         public void Dispose()
         {
             Dispose(true);
@@ -49,6 +49,47 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+        
+        private RetType Apply<EType, RetType>(DbSet<EType> set, Func<DbSet<EType>,RetType> act)
+            where EType : class
+        {
+            CheckNull(set);
+            CheckNull(act);
+            return act(set);
+        }
+        private RetType Apply<EType, RetType>(DbSet<EType> set, Func<DbSet<EType>, RetType> act, Func<EType, bool> pr)
+            where EType : class
+        {
+            CheckNull(set);
+            CheckNull(pr);
+            CheckNull(act);
+            return act(set);
+        }
+        private IEnumerable<TResult> ApplyIe<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, IEnumerable<TResult>> act)
+            where TResult : DBObject<int>
+        {
+            return IsNotProcessing() ? Apply<TResult, IEnumerable<TResult>>(set, act) : new List<TResult>();
+        }
+        private IEnumerable<TResult> ApplyIe<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, IEnumerable<TResult>> act, Func<TResult,bool> pr)
+            where TResult : DBObject<int>
+        {
+            return IsNotProcessing() ? Apply<TResult, IEnumerable<TResult>>(set, act, pr) : new List<TResult>();
+        }
+        private TResult ApplySingle<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, TResult> act)
+           where TResult : DBObject<int>
+        {
+            return IsNotProcessing() ? Apply<TResult, TResult>(set, act) : default(TResult);
+        }
+        private TResult ApplySingle<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, TResult> act, Func<TResult,bool> pr)
+           where TResult : DBObject<int>
+        {
+            return IsNotProcessing() ? Apply<TResult, TResult>(set, act,pr) : default(TResult);
+        }
+        private bool CheckIsNotProcessingApply<EType>(DbSet<EType> set, Func<DbSet<EType>, bool> act)
+            where EType : class
+        {
+            return IsNotProcessing() ? Apply(set, act) : false;
         }
         private bool IsNotProcessing()
         {
@@ -69,74 +110,25 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                     throw new ArgumentNullException($"{nameof(el)} cannot be null") { };
             }
         }
+
+
         private IEnumerable<TResult> GetAll<TResult>(DbSet<TResult> set)
             where TResult : DBObject<int>
         {
             return ApplyIe(set, x => x);
         }
-
         private TResult Get<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
             where TResult : DBObject<int>
         {
-            return ApplySingle<TResult>(set, x => x.FirstOrDefault(predicate));
+            return ApplySingle<TResult>(set, x => x.FirstOrDefault(predicate),predicate);
         }
-
-
-        public IEnumerable<TResult> GetAll<TResult>()
-           where TResult : DBObject<int>
-        {
-            return (this as IRepository<TResult>).GetAll();
-        }
-
-        IEnumerable<Element> IRepository<Element>.GetAll()
-        {
-            return GetAll(db.Elements);
-        }
-
-        private RetType Apply<EType, RetType>(DbSet<EType> set, Func<DbSet<EType>, RetType> act)
-            where EType : class
-        {
-            CheckNull(set);
-            CheckNull(act);
-            return act(set);
-        }
-
-        private IEnumerable<TResult> ApplyIe<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, IEnumerable<TResult>> act)
-            where TResult : DBObject<int>
-        {
-            return IsNotProcessing() ? Apply<TResult, IEnumerable<TResult>>(set, act) : new List<TResult>();
-        }
-
-        private TResult ApplySingle<TResult>(DbSet<TResult> set, Func<DbSet<TResult>, TResult> act)
-            where TResult : DBObject<int>
-        {
-            return IsNotProcessing() ? Apply<TResult, TResult>(set, act) : default(TResult);
-        }
-
-        private bool CheckIsNotProcessingApply<EType>(DbSet<EType> set, Func<DbSet<EType>, bool> act)
-            where EType : class
-        {
-            return IsNotProcessing() ? Apply(set, act) : false;
-        }
-
-        public Element Get(Func<Element, bool> predicate)
-        {
-            return ApplySingle(db.Elements, x => x.FirstOrDefault(predicate));
-        }
-
         private IEnumerable<TResult> Filter<TResult>(DbSet<TResult> set, Func<TResult, bool> predicate)
             where TResult : DBObject<int>
         {
-            return ApplyIe(set, x => x.Where(predicate));
+            return ApplyIe(set, x => x.Where(predicate),predicate);
         }
-
-        public IEnumerable<Element> Filter(Func<Element, bool> predicate)
-        {
-            return Filter(db.Elements, predicate);
-        }
-
         private bool Create<TCreate>(DbSet<TCreate> set, TCreate item)
-            where TCreate : DBObject<int>
+           where TCreate : DBObject<int>
         {
             return CheckIsNotProcessingApply(set, x =>
             {
@@ -148,6 +140,64 @@ namespace ProgressControl.WEB_New_.Model.Repositories
                 else return false;
             });
         }
+        private bool Delete<TDelete>(DbSet<TDelete> set, TDelete item)
+            where TDelete : DBObject<int>
+        {
+            return CheckIsNotProcessingApply(set, x =>
+            {
+                if (x.Find(item.Code) != null)
+                {
+                    x.Remove(item);
+                    return true;
+                }
+                else return false;
+            });
+        }
+        private bool BoxCreate(Smt_box item)
+        {
+            return CheckIsNotProcessingApply(db.SmtBoxes, x =>
+            {
+                if (x.FirstOrDefault(y => y.Code == item.Code && y.ElementId == item.ElementId) == null)
+                {
+                    x.Add(item);
+                    return true;
+                }
+                else return false;
+            });
+        }
+        public IEnumerable<TResult> GetAll<TResult>()
+           where TResult : DBObject<int>
+        {
+            return (this as IRepository<TResult>).GetAll();
+        }
+
+
+        IEnumerable<Element> IRepository<Element>.GetAll()
+        {
+            return GetAll(db.Elements);
+        }
+
+        
+
+        
+
+       
+
+        
+
+        public Element Get(Func<Element, bool> predicate)
+        {
+            return ApplySingle(db.Elements, x => x.FirstOrDefault(predicate));
+        }
+
+        
+
+        public IEnumerable<Element> Filter(Func<Element, bool> predicate)
+        {
+            return Filter(db.Elements, predicate);
+        }
+
+       
 
         public bool Create(Element item)
         {
@@ -178,19 +228,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
         }
 
 
-        private bool Delete<TDelete>(DbSet<TDelete> set, TDelete item)
-            where TDelete : DBObject<int>
-        {
-            return CheckIsNotProcessingApply(set, x =>
-            {
-                if (x.Find(item.Code) != null)
-                {
-                    x.Remove(item);
-                    return true;
-                }
-                else return false;
-            });
-        }
+        
         public bool Delete(Element item)
         {
             return Delete(item);
@@ -245,18 +283,7 @@ namespace ProgressControl.WEB_New_.Model.Repositories
             return Filter(predicate);
         }
 
-        private bool BoxCreate(Smt_box item)
-        {
-            return CheckIsNotProcessingApply(db.SmtBoxes, x =>
-            {
-                if (x.FirstOrDefault(y => y.Code == item.Code && y.ElementId == item.ElementId) == null)
-                {
-                    x.Add(item);
-                    return true;
-                }
-                else return false;
-            });
-        }
+        
         public bool Create(Smt_box item)
         {
             return BoxCreate(item);

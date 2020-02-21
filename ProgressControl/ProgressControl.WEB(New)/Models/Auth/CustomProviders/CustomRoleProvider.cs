@@ -12,7 +12,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override void AddUsersToRoles(string[] usernames, string[] roleNames)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 tmp.AddUsersToRoles(usernames, roleNames);
             }
@@ -20,7 +20,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override void CreateRole(string roleName)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 tmp.CreateRole(roleName);
             }
@@ -28,7 +28,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override bool DeleteRole(string roleName, bool throwOnPopulatedRole)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.DeleteRole(roleName, throwOnPopulatedRole);
             }
@@ -36,7 +36,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override string[] FindUsersInRole(string roleName, string usernameToMatch)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.FindUsersInRole(roleName, usernameToMatch);
             }
@@ -44,7 +44,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override string[] GetAllRoles()
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetAllRoles();
             }
@@ -53,7 +53,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override string[] GetRolesForUser(string username)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetRolesForUser(username);
             }
@@ -61,7 +61,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override string[] GetUsersInRole(string roleName)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetUsersInRole(roleName);
             }
@@ -69,7 +69,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override bool IsUserInRole(string username, string roleName)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.IsUserInRole(username, roleName);
             }
@@ -77,7 +77,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 tmp.RemoveUsersFromRoles(usernames, roleNames);
             }
@@ -85,7 +85,7 @@ namespace ProgressControl.WEB_New_.Models.Auth.CustomProviders
 
         public override bool RoleExists(string roleName)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.RoleExists(roleName);
             }

@@ -227,7 +227,7 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\AdminModels.cs" />
     <Compile Include="Models\Auth\CustomAttributes\SetPremissonsAttribute.cs" />
-    <Compile Include="Models\Auth\CustomProviders\Crutch.cs" />
+    <Compile Include="Models\Auth\CustomProviders\Helper.cs" />
     <Compile Include="Models\Auth\CustomProviders\CustomRoleProvider.cs" />
     <Compile Include="Models\Auth\CustomProviders\CustomUserProvider.cs" />
     <Compile Include="Models\Auth\EF\UserContext.cs" />

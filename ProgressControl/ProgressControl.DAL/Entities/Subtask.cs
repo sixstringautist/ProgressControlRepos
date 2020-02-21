@@ -175,10 +175,11 @@ namespace ProgressControl.DAL.Entities
 
     #region AreaSubTasks
 
-    public class Container : OneReferenceEntity<Subtask,int>
+    public class Container : DBObject<int>
     {
         [Key]
         public override int Code { get; set; }
+        public virtual Subtask NavProp { get; set; }
         public virtual ICollection<Smt_box> Elements { get; protected set; }
         public void AddElement(Smt_box el)
         {

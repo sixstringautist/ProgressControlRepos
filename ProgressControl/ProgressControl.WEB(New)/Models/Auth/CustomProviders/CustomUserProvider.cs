@@ -75,7 +75,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override bool ChangePassword(string username, string oldPassword, string newPassword)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.ChangePassword(username, oldPassword, newPassword);
             }
@@ -83,7 +83,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.ChangePasswordQuestionAndAnswer(username, password, newPasswordQuestion, newPasswordAnswer);
             }
@@ -91,7 +91,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
          public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.CreateUser(username, password, email, passwordQuestion, passwordAnswer, isApproved, providerUserKey, out status);
             }
@@ -100,7 +100,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override bool DeleteUser(string username, bool deleteAllRelatedData)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.DeleteUser(username, deleteAllRelatedData);
             }
@@ -108,7 +108,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override MembershipUserCollection FindUsersByEmail(string emailToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                return tmp.FindUsersByEmail(emailToMatch, pageIndex, pageSize, out totalRecords);
             }
@@ -116,7 +116,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.FindUsersByName(usernameToMatch, pageIndex, pageSize, out totalRecords);
             }
@@ -124,7 +124,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetAllUsers(pageIndex, pageIndex, out totalRecords);
             }
@@ -132,7 +132,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override int GetNumberOfUsersOnline()
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetNumberOfUsersOnline();
             }
@@ -140,7 +140,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override string GetPassword(string username, string answer)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetPassword(username,answer);
             }
@@ -148,7 +148,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetUser(providerUserKey,userIsOnline);
             }
@@ -156,7 +156,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override MembershipUser GetUser(string username, bool userIsOnline)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetUser(username,userIsOnline);
             }
@@ -164,7 +164,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override string GetUserNameByEmail(string email)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.GetUserNameByEmail(email);
             }
@@ -172,7 +172,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override string ResetPassword(string username, string answer)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.ResetPassword(username,answer);
             }
@@ -180,7 +180,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override bool UnlockUser(string userName)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.UnlockUser(userName);
             }
@@ -188,7 +188,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override void UpdateUser(MembershipUser user)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 tmp.UpdateUser(user);
             }
@@ -196,7 +196,7 @@ namespace ProgressControl.WEB.Models.Auth.CustomProviders
 
         public override bool ValidateUser(string username, string password)
         {
-            using (var tmp = new Crutch())
+            using (var tmp = new Helper())
             {
                 return tmp.ValidateUser(username, password);
             }
